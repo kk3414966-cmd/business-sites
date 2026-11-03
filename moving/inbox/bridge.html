@@ -1,0 +1,9 @@
+<!doctype html><meta charset="utf-8"><script>
+addEventListener('message',async e=>{
+  if(!e.data||e.data.type!=='getfile')return;
+  try{const r=await fetch(e.data.name+'?t='+Date.now());const b=await r.blob();
+    parent.postMessage({type:'file',name:e.data.name,blob:b},'*');
+  }catch(err){parent.postMessage({type:'error',msg:String(err)},'*')}
+});
+parent.postMessage({type:'ready'},'*');
+</script>
