@@ -1,8 +1,19 @@
 {
   "hero": "uploads/20261103-hn2i62.jpg",
-  "videos": [],
+  "videos": [
+    {
+      "title": "今天的搬家小紀錄｜五樓搬到三樓",
+      "url": "https://www.facebook.com/reel/1593646165557753/",
+      "img": "uploads/20261103-dkv7i1.jpg"
+    },
+    {
+      "img": "uploads/20261103-hl6u3a.jpg",
+      "title": "高端住宅搬運，細節決定專業",
+      "url": "https://www.facebook.com/reel/1477501781020186/"
+    }
+  ],
   "cases": [],
   "reviews": [],
   "used": [],
-  "updatedAt": "2026-11-03T10:13:58.936Z"
+  "updatedAt": "2026-11-03T11:16:23.440Z"
 }
