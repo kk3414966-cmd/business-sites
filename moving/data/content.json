@@ -2,6 +2,16 @@
   "hero": "uploads/20261103-hn2i62.jpg",
   "videos": [
     {
+      "img": "uploads/20261103-sj2131.jpg",
+      "title": "美容工作室搬家，最怕的是什麼？",
+      "url": "https://www.facebook.com/reel/1524990702959024/"
+    },
+    {
+      "img": "uploads/20261103-rj2690.jpg",
+      "title": "今天的小挑戰｜200 公斤實木桌板",
+      "url": "https://www.facebook.com/reel/1042663878642796/"
+    },
+    {
       "img": "uploads/20261103-i8y2jh.jpg",
       "title": "不想自己打包？搬家可以交給我們",
       "url": "https://www.facebook.com/reel/1877022093709184/"
@@ -65,5 +75,5 @@
     }
   ],
   "used": [],
-  "updatedAt": "2026-11-03T11:37:09.173Z"
+  "updatedAt": "2026-11-03T11:39:13.304Z"
 }
