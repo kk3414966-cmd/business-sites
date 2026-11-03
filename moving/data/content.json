@@ -1,47 +1,8 @@
 {
   "hero": "uploads/20261103-hn2i62.jpg",
-  "videos": [
-    {
-      "url": "https://www.facebook.com/reel/1477501781020186",
-      "img": "uploads/20261103-u9xgrw.jpg",
-      "title": "🏡【高端住宅搬運，細節決定專業！】"
-    }
-  ],
-  "cases": [
-    {
-      "from": "北屯",
-      "img": "uploads/20261103-5t02t3.jpg",
-      "to": "西屯",
-      "type": "2房",
-      "floors": "5樓至電梯",
-      "trucks": "1車",
-      "hours": "2小時",
-      "text": "盆栽也輕鬆搞定"
-    }
-  ],
-  "reviews": [
-    {
-      "name": "222",
-      "text": "222"
-    },
-    {
-      "name": "1111",
-      "text": "1111"
-    }
-  ],
-  "used": [
-    {
-      "title": "貨車",
-      "img": "uploads/20261103-j5pcsi.jpg",
-      "price": 500000,
-      "text": "半買半相送~~"
-    },
-    {
-      "img": "uploads/20261103-48ppy5.jpg",
-      "title": "神明桌 ",
-      "price": 300000,
-      "text": "九成新"
-    }
-  ],
-  "updatedAt": "2026-11-03T10:13:40.382Z"
+  "videos": [],
+  "cases": [],
+  "reviews": [],
+  "used": [],
+  "updatedAt": "2026-11-03T10:13:58.936Z"
 }
