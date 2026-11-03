@@ -2,6 +2,11 @@
   "hero": "uploads/20261103-hn2i62.jpg",
   "videos": [
     {
+      "img": "uploads/20261104-laowu-cover.jpg",
+      "title": "老屋裝修前整理，三天完成",
+      "url": "https://www.facebook.com/reel/1537351324818364/"
+    },
+    {
       "img": "uploads/20261103-viayfg.jpg",
       "title": "美容工作室搬家，最怕的是什麼？",
       "url": "https://www.facebook.com/reel/1524990702959024/"
@@ -28,6 +33,11 @@
     }
   ],
   "cases": [
+    {
+      "img": "uploads/20261104-laowu-case.jpg",
+      "to": "老屋裝修前整理，三天完成",
+      "text": "還能用的送給需要的人，能回收的分類送回收場，大型物品先搬到集合點，屋主只要放心等裝修。"
+    },
     {
       "img": "uploads/20261103-lezk67.jpg",
       "from": "南屯",
@@ -75,5 +85,5 @@
     }
   ],
   "used": [],
-  "updatedAt": "2026-11-03T13:23:22.606Z"
+  "updatedAt": "2026-11-03T16:10:59.000Z"
 }
