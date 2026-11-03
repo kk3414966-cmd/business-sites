@@ -1,0 +1,30 @@
+{
+  "hero": "uploads/20261103-jq24pe.jpg",
+  "videos": [],
+  "cases": [],
+  "reviews": [
+    {
+      "name": "222",
+      "text": "222"
+    },
+    {
+      "name": "1111",
+      "text": "1111"
+    }
+  ],
+  "used": [
+    {
+      "title": "貨車",
+      "img": "uploads/20261103-j5pcsi.jpg",
+      "price": 500000,
+      "text": "半買半相送~~"
+    },
+    {
+      "img": "uploads/20261103-48ppy5.jpg",
+      "title": "神明桌 ",
+      "price": 300000,
+      "text": "九成新"
+    }
+  ],
+  "updatedAt": "2026-11-03T09:31:12.298Z"
+}
