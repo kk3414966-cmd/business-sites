@@ -1,7 +1,24 @@
 {
-  "hero": "uploads/20261103-jq24pe.jpg",
-  "videos": [],
-  "cases": [],
+  "hero": "uploads/20261103-1yogh9.jpg",
+  "videos": [
+    {
+      "url": "https://www.facebook.com/reel/1477501781020186",
+      "img": "uploads/20261103-u9xgrw.jpg",
+      "title": "🏡【高端住宅搬運，細節決定專業！】"
+    }
+  ],
+  "cases": [
+    {
+      "from": "北屯",
+      "img": "uploads/20261103-5t02t3.jpg",
+      "to": "西屯",
+      "type": "2房",
+      "floors": "5樓至電梯",
+      "trucks": "1車",
+      "hours": "2小時",
+      "text": "盆栽也輕鬆搞定"
+    }
+  ],
   "reviews": [
     {
       "name": "222",
@@ -26,5 +43,5 @@
       "text": "九成新"
     }
   ],
-  "updatedAt": "2026-11-03T09:31:12.298Z"
+  "updatedAt": "2026-11-03T09:33:18.975Z"
 }
