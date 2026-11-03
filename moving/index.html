@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>搬家專車｜台中搬家線上估價</title>
+<meta name="description" content="台中搬家、長途搬家、家具回收清運。線上填資料，馬上看到價格，選好日期時段直接加 LINE 約時間。">
+<link rel="icon" href="images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Barlow+Condensed:wght@600;800&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="demo pad" id="demoBar"><div class="in">⚠ 測試版：預約不會真的送出，行事曆用的是假資料。</div></div>
+
+<header class="top pad">
+  <div class="in">
+    <a class="logo" href="#home" data-go="home"><img src="images/logo.png" alt="搬家專車 LOGO" width="88" height="88"><div><b data-t="name">搬家專車</b><small data-t="slogan"></small></div></a>
+    <nav class="tabs" aria-label="頁面">
+      <a href="#home" data-go="home">首頁</a>
+      <a href="#quote" data-go="quote">線上估價</a>
+      <a href="#gallery" data-go="gallery">搬家實錄</a>
+      <a href="#used" data-go="used">二手家具</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- ===================== 首頁 ===================== -->
+  <div class="view" id="v-home">
+    <section class="hero">
+      <div class="hero-img" role="img" aria-label="搬家專車的 3.5 噸升降尾門貨車"></div>
+      <div class="hero-text pad"><div class="in"><div class="hero-copy">
+        <span class="roof">台中搬家・小丞親自到場</span>
+        <h1>搬家不用煩，<br><em>一條龍搞定。</em></h1>
+        <p>打包、搬運、擺到定位，一通 LINE 全部交給我們。價格先講清楚，現場不亂加價。</p>
+        <ul class="hero-pts"><li>1 分鐘線上估價</li><li>Google 好評推薦</li><li>免費環保箱</li></ul>
+        <div class="row"><a class="btn btn-y" href="#quote" data-go="quote">免費線上估價</a><a class="btn btn-line" data-href="lineUrl" target="_blank" rel="noopener">加 LINE 詢問</a></div>
+      </div></div></div>
+    </section>
+
+    <div class="belt pad"><div class="in" id="belt"></div></div>
+
+    <section class="sec pad white">
+      <div class="in">
+        <div class="sec-head"><h2>搬家實錄</h2><a href="#gallery" data-go="gallery">看全部 →</a></div>
+        <div class="feature" id="featureHome"></div>
+      </div>
+    </section>
+
+    <section class="sec pad white" id="reviewSec">
+      <div class="in">
+        <div class="sec-head"><h2>客戶好評</h2><a data-href="googleMapsUrl" target="_blank" rel="noopener">Google 地圖看全部 →</a></div>
+        <div class="rev" id="reviews"></div>
+      </div>
+    </section>
+
+    <section class="sec pad">
+      <div class="in"><h2>常見問題</h2><div id="faqList" style="margin-top:16px"></div></div>
+    </section>
+  </div>
+
+  <!-- ===================== 線上估價 ===================== -->
+  <div class="view hide" id="v-quote">
+    <div class="steps pad"><div class="in"><ol id="stepBar">
+      <li data-s="1"><b>1</b>搬家內容</li><li data-s="2"><b>2</b>日期時段</li><li data-s="3"><b>3</b>報價單</li><li data-s="4"><b>4</b>聯絡方式</li>
+    </ol></div></div>
+
+    <div class="pad"><div class="in qwrap">
+      <!-- 第 1 步 -->
+      <form class="step" id="s1" autocomplete="off" novalidate>
+        <div class="card">
+          <h3>怎麼搬？</h3>
+          <div class="chips wide" id="carry"></div>
+        </div>
+        <div class="card">
+          <h3>東西大概多少？</h3>
+          <div class="chips" id="loads"></div>
+        </div>
+        <div class="card">
+          <h3>從哪裡搬到哪裡？</h3>
+          <div class="addr">
+            <b class="addr-tag">舊家</b>
+            <div class="g2">
+              <label class="f"><span>縣市</span><select id="fromCity"></select></label>
+              <label class="f"><span>區域</span><select id="fromDist"></select></label>
+            </div>
+            <label class="f"><span>地址（寫到路名就可以）</span><input id="fromAddr" maxlength="120" placeholder="例如：台灣大道三段"></label>
+          </div>
+          <div class="addr">
+            <b class="addr-tag">新家</b>
+            <div class="g2">
+              <label class="f"><span>縣市</span><select id="toCity"></select></label>
+              <label class="f"><span>區域</span><select id="toDist"></select></label>
+            </div>
+            <label class="f"><span>地址（寫到路名就可以）</span><input id="toAddr" maxlength="120" placeholder="例如：崇德路二段"></label>
+          </div>
+          <p class="km" id="kmHint"></p>
+          <div class="g2" id="floorRow" style="margin-top:10px">
+            <label class="f"><span>舊家樓層</span><select id="fromFloor"></select></label>
+            <label class="f"><span>新家樓層</span><select id="toFloor"></select></label>
+          </div>
+        </div>
+        <div class="card">
+          <h3>有哪些大型家具、家電？</h3>
+          <p class="hint" style="margin:0 0 10px">點一下加入，可以選尺寸，小丞比較好估要多大的空間。</p>
+          <div class="chips" id="bigAdd"></div>
+          <div id="bigList"></div>
+          <div class="vol hide" id="volBox">
+            <div class="vol-head"><span>這些東西大約佔一台平車</span><b id="volPct"></b></div>
+            <div class="vol-bar" aria-hidden="true"><i id="volFill"></i><span class="mark m80">建議上限</span><span class="mark m100">滿車</span></div>
+            <p class="vol-msg" id="volMsg"></p>
+            <p class="vol-msg raise hide" id="raiseMsg">大冰箱超過 2 台，比平車（120 公分）高，需要加高車篷 +$500。</p>
+            <p class="hint">平車：長 10.5 尺 × 寬 200 × 高 120 公分（可加高到 190 公分）。超過八成就建議多一車，疊太滿容易壓壞東西。</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3>需要環保箱嗎？</h3>
+          <p class="hint" style="margin:-4px 0 10px">免費借用，最多 25 個，尺寸約 60 × 40 × 50（高）公分。搬完 7 天內歸還。</p>
+          <div class="chips" id="boxes">
+            <label><input type="radio" name="boxes" value="1"><i>需要<small>免費借用</small></i></label>
+            <label><input type="radio" name="boxes" value="0" checked><i>不用</i></label>
+          </div>
+          <p class="hint" id="boxHint"></p>
+        </div>
+        <div class="card">
+          <h3>還需要什麼？</h3>
+          <div class="checks">
+            <label><input type="checkbox" id="pack"> 代客打包<small>2 人先算 2 小時 $3,000，現場超過再加</small></label>
+            <label><input type="checkbox" id="restore"> 代客歸位<small>2 人先算 2 小時 $3,000，現場超過再加</small></label>
+          </div>
+          <p class="sub-title">以下要看東西才能估，送出後<b>加 LINE 傳照片</b>，小丞馬上幫你估價：</p>
+          <div class="checks" id="extras"></div>
+        </div>
+      </form>
+
+      <!-- 第 2 步 -->
+      <div class="step hide" id="s2">
+        <div class="card">
+          <h3>希望哪一天搬？</h3>
+          <p class="sub-title" style="margin-top:0">最近可以約的日子</p>
+          <div class="quick" id="quickDates"></div>
+          <p class="sub-title">或從月曆選</p>
+          <div class="cal">
+            <div class="cal-head"><button type="button" class="cal-nav" id="calPrev" aria-label="上個月">‹</button><b id="calTitle"></b><button type="button" class="cal-nav" id="calNext" aria-label="下個月">›</button></div>
+            <div class="cal-week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+            <div class="cal-grid" id="calGrid"></div>
+            <div class="cal-legend"><span><i class="lg ok"></i>可以約</span><span><i class="lg few"></i>剩少數時段</span><span><i class="lg full"></i>已滿／休息</span></div>
+          </div>
+        </div>
+        <div class="card" id="slotCard">
+          <div class="picked" id="pickedDate"></div>
+          <h3>希望什麼時段？</h3>
+          <div class="chips wide4" id="slots"></div>
+          <div id="nightWrap" class="hide">
+            <p class="sub-title">晚上幾點開始？</p>
+            <div class="chips" id="nightHours"></div>
+          </div>
+          <p class="hint" id="slotHint">實際幾點開始，小丞看過行程會跟你確認。</p>
+        </div>
+      </div>
+
+      <!-- 第 3 步：報價單 -->
+      <div class="step hide" id="s3">
+        <article class="qcard" id="qcard"></article>
+      </div>
+
+      <!-- 第 4 步 -->
+      <form class="step hide" id="s4" novalidate>
+        <div class="card">
+          <h3>留下聯絡方式，取得正式報價單</h3>
+          <p class="hint" style="margin:0 0 12px">剛剛的是預估報價。送出後會打開 LINE，加小丞好友，小丞確認細節後會傳<b>正式報價單</b>給你，並跟你約時間。</p>
+          <div class="g2">
+            <label class="f"><span>怎麼稱呼你？ *</span><input id="name" maxlength="40" autocomplete="name" placeholder="例如：王小姐"></label>
+            <label class="f"><span>電話 *</span><input id="phone" type="tel" maxlength="20" inputmode="tel" autocomplete="tel"></label>
+            <label class="f"><span>LINE 名稱（方便小丞認出你）</span><input id="lineName" maxlength="40"></label>
+            <label class="f"><span>你從哪裡知道我們？</span><select id="heard"></select></label>
+          </div>
+          <label class="f" style="margin-top:10px"><span>附註（其他需求）</span><textarea id="note" rows="3" maxlength="500"></textarea></label>
+          <!-- 機器人陷阱：真人看不到，機器人會填 -->
+          <div class="trap" aria-hidden="true"><label>網站<input id="website" tabindex="-1" autocomplete="off"></label></div>
+          <p class="warn hide" id="bError"></p>
+        </div>
+      </form>
+
+      <!-- 完成 -->
+      <div class="step hide" id="sDone">
+        <div class="done">
+          <h3>✓ 收到了！最後一步：</h3>
+          <ol>
+            <li>按下面的按鈕，加小丞的 LINE。</li>
+            <li>跟小丞打聲招呼，小丞就知道是你。</li>
+          </ol>
+          <div class="row">
+            <a class="btn btn-line" data-href="lineUrl" target="_blank" rel="noopener">加小丞 LINE 拿優惠</a>
+            <button class="btn btn-ghost" type="button" id="copyMine">複製我的估價內容</button>
+          </div>
+          <p style="margin:14px 0 0"><button class="btn btn-ghost" type="button" id="backFromDone">← 回上一頁</button></p>
+          <div class="preview" id="notifyPreview">
+            <b>測試版才看得到：官方帳號會傳給小丞的訊息</b>
+            <pre id="notifyText"></pre>
+          </div>
+        </div>
+      </div>
+    </div></div>
+
+    <div class="qbar" id="qbar">
+      <div class="qbar-in">
+        <button class="btn btn-back" type="button" id="prevBtn">上一步</button>
+        <div class="qbar-price"><small>線上估價</small><b id="barStep"></b></div>
+        <button class="btn btn-y" type="button" id="nextBtn">下一步</button>
+      </div>
+      <p class="warn hide" id="stepWarn"></p>
+    </div>
+  </div>
+
+  <!-- ===================== 搬家實錄 ===================== -->
+  <div class="view hide" id="v-gallery">
+    <section class="sec pad"><div class="in">
+      <h2>搬家實錄</h2><p class="sub">每一趟都是真的現場。</p>
+      <h3 class="g-title">短影片</h3>
+      <div class="reels" id="reelsAll"></div>
+      <h3 class="g-title">搬家案例</h3>
+      <div class="cases" id="casesAll"></div>
+    </div></section>
+  </div>
+
+  <!-- ===================== 二手家具 ===================== -->
+  <div class="view hide" id="v-used">
+    <section class="sec pad"><div class="in"><h2>二手家具</h2><p class="sub">整理好、可以直接用的二手家具。</p><div id="usedList"></div></div></section>
+  </div>
+</main>
+
+<footer class="pad"><div class="in">
+  <div><b data-t="name"></b>｜<span data-t="slogan"></span></div>
+  <div>電話 <span class="num" data-t="phone"></span>｜<a data-href="lineUrl" target="_blank" rel="noopener">LINE</a>｜<a data-href="googleMapsUrl" target="_blank" rel="noopener">Google 地圖</a></div>
+</div></footer>
+
+<div class="mbar" id="mbar"><a class="btn btn-y" href="#quote" data-go="quote">線上估價</a><a class="btn btn-line" data-href="lineUrl" target="_blank" rel="noopener">加 LINE</a></div>
+<div class="toast hide" id="toast"></div>
+
+<script src="../shared/places.js"></script>
+<script src="../shared/quote.js"></script>
+<script src="../shared/route.js"></script>
+<script src="content.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
