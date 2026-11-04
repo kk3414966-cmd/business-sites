@@ -115,9 +115,9 @@
     const caseTags = c => [c.type, c.floors, c.trucks, c.hours].filter(Boolean);
     $('#reelsAll').innerHTML = S.videos.length ? reelsHTML(S.videos) : '<div class="empty">影片準備中。</div>';
     $('#casesAll').innerHTML = S.cases.map(c => `<article class="case">
-        <img src="${esc(pic(c.img))}" alt="${esc(c.from)}搬到${esc(c.to)}" loading="lazy" style="object-position:${esc(c.pos || 'center')}">
+        <img src="${esc(pic(c.img))}" alt="${esc(c.from ? c.from + "搬到" + c.to : c.to)}" loading="lazy" style="object-position:${esc(c.pos || 'center')}">
         <div class="case-b">
-          <div class="route">${esc(c.from)}<span aria-hidden="true">→</span>${esc(c.to)}${fromCms ? '' : '<em class="badge">示範</em>'}</div>
+          <div class="route">${c.from ? esc(c.from) + '<span aria-hidden="true">→</span>' : ''}${esc(c.to)}${fromCms ? '' : '<em class="badge">示範</em>'}</div>
           <div class="tags">${caseTags(c).map(t => `<span>${esc(t)}</span>`).join('')}</div>
           <p>${esc(c.text)}</p>
         </div></article>`).join('') || '<div class="empty">案例準備中。</div>';
@@ -133,7 +133,7 @@
       <div class="f-side">${fc.map(c => `
         <a class="f-case" href="#gallery" data-go="gallery">
           <img src="${esc(pic(c.img))}" alt="" loading="lazy" style="object-position:${esc(c.pos || 'center')}">
-          <span class="f-txt"><b>${esc(c.from)} → ${esc(c.to)}</b><small>${esc(caseTags(c).slice(0, 3).join('・'))}</small></span>
+          <span class="f-txt"><b>${esc(c.from ? c.from + ' → ' + c.to : c.to)}</b><small>${esc(caseTags(c).slice(0, 3).join('・'))}</small></span>
         </a>`).join('')}
         <a class="btn btn-n f-more" href="#gallery" data-go="gallery">看更多搬家實錄 →</a>
       </div>`;
