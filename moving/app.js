@@ -109,7 +109,6 @@
     const demoBadge = fromCms ? '' : '<span class="badge">示範</span>';
     if (S.hero) $('.hero-img').style.backgroundImage = `url("${pic(S.hero)}")`;
     // 手機版：依主圖本身的長寬比顯示，橫幅上的字才不會被左右裁掉
-    if (S.hero) { const im = new Image(); im.onload = () => { if (im.naturalWidth) $('.hero-img').style.setProperty('--hero-ar', im.naturalWidth + '/' + im.naturalHeight); }; im.src = pic(S.hero); }
     const reelsHTML = list => list.map(v => {
       const inner = `<img src="${esc(pic(v.img))}" alt="" loading="lazy" style="object-position:${esc(v.pos || 'center')}"><span class="play" aria-hidden="true"></span>${demoBadge}<span class="cap">${esc(v.title)}</span>`;
       return v.url ? `<a class="reel" href="${esc(v.url)}" target="_blank" rel="noopener" aria-label="${esc(v.title)}">${inner}</a>` : `<div class="reel">${inner}</div>`;

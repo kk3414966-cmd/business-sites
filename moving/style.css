@@ -48,10 +48,12 @@ img{max-width:100%}
   .tabs a{text-align:center;padding:8px 2px;font-size:14px}
 }
 
-/* 首頁大圖：手機上貨車照片完整露出，電腦上照片放右邊 */
-.hero{position:relative;background:var(--navy);color:var(--white)}
-.hero-img{background:var(--navy-2) url(images/hero.jpg) center 45%/cover no-repeat;aspect-ratio:var(--hero-ar,16/12);max-width:100%}
-.hero-text .in{padding-block:24px 34px}
+/* 首頁大圖：照片鋪在「搬家不用煩」底下（手機、電腦都一樣重疊），用深藍漸層讓字看得清楚 */
+.hero{position:relative;background:var(--navy);color:var(--white);overflow:hidden}
+.hero-img{position:absolute;inset:0;background:var(--navy-2) url(images/hero.jpg) 62% 45%/cover no-repeat}
+.hero-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,39,71,.38) 0%,rgba(15,39,71,.66) 42%,rgba(15,39,71,.9) 100%)}
+.hero-text{position:relative}
+.hero-text .in{padding-block:28px 34px}
 .roof{display:inline-block;background:var(--yellow);color:var(--ink);font-weight:700;font-size:14px;padding:3px 12px;border-radius:6px;letter-spacing:2px}
 .hero h1{font-size:clamp(32px,6vw,54px);font-weight:900;line-height:1.2;margin:12px 0 10px}
 .hero h1 em{font-style:normal;color:var(--yellow);font-size:1.3em;display:inline-block;line-height:1.15}
@@ -60,9 +62,9 @@ img{max-width:100%}
 @media(min-width:861px){
   /* 照片鋪滿整個寬度，左邊用深藍漸層讓字看得清楚 */
   .hero{min-height:560px;display:flex;align-items:center}
-  .hero-img{position:absolute;inset:0;width:auto;aspect-ratio:auto;background-position:right 45%}
+  .hero-img{background-position:right 45%}
   .hero-img::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(15,39,71,.96) 0%,rgba(15,39,71,.88) 30%,rgba(15,39,71,.35) 55%,rgba(15,39,71,0) 70%)}
-  .hero-text{position:relative;width:100%}
+  .hero-text{width:100%}
   .hero-copy{max-width:470px}
 }
 
