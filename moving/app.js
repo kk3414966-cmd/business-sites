@@ -388,7 +388,12 @@
     current = { input, q, hours, code };
     if (step === 3) renderQuoteCard();
   }
-  const priceText = q => q.low === q.high ? money(q.low) : `${money(q.low)}～${money(q.high)}`;
+  /* 客人看到的費用一律是區間：精準金額的 90%～110%（總價四捨五入到 roundTo，明細四捨五入到 10） */
+  const R_LO = 0.9, R_HI = 1.1;
+  const shownLow = n => Math.round(n * R_LO / P.roundTo) * P.roundTo;
+  const shownHigh = n => Math.round(n * R_HI / P.roundTo) * P.roundTo;
+  const priceText = q => `${money(shownLow(q.low))}～${money(shownHigh(q.high))}`;
+  const lineRange = l => `${money(Math.round(l.min * R_LO / 10) * 10)}～${money(Math.round(l.max * R_HI / 10) * 10)}`;
   $('#s1').addEventListener('change', e => { refresh(); });
 
   /* =========================================================
@@ -423,13 +428,13 @@
           <div class="big"><span class="pt" aria-hidden="true">👉</span> ${priceText(q)}</div>
           <div class="when">${selDate ? `${dateText(selDate)} 希望${slot ? slot.label : ''}${slot && slot.pickHour ? ` ${pad2(slotHour())}:00 開始` : ''}<br>` : ''}${esc(placeName(input.fromCity, input.fromDist))} → ${esc(placeName(input.toCity, input.toDist))}（約 ${input.km} 公里）</div>
         </div>
-        <p class="qc-fit">這是線上預估報價，留下聯絡方式後，小丞確認細節會再給您正式報價單。</p>
+        <p class="qc-fit">這是線上預估費用區間（實際以現場狀況為準），留下聯絡方式後，小丞確認細節會再給您正式報價單。</p>
         <div class="qc-sec"><h4>包含：</h4><ul>${included.map(t => `<li class="ck">${esc(t)}</li>`).join('')}</ul></div>
         ${notes.length ? `<div class="qc-note">${notes.map(esc).join('<br>')}</div>` : ''}
         <div class="qc-sec"><h4>📌 可能產生的額外費用</h4><ul>${C.possibleExtras.map(t => `<li class="dot">${esc(t)}</li>`).join('')}</ul>
           ${extrasLabels.length ? `<p>「${esc(extrasLabels.join('、'))}」加 LINE 傳照片，小丞馬上幫您估價。</p>` : ''}
           <p>${esc(C.promise)}</p></div>
-        <details class="qc-calc"><summary>看費用怎麼算</summary><ul>${q.lines.map(l => `<li><span>${esc(l.label)}</span><b>${l.min === l.max ? money(l.min) : money(l.min) + '～' + money(l.max)}</b></li>`).join('')}</ul></details>
+        <details class="qc-calc"><summary>看費用怎麼算</summary><ul>${q.lines.map(l => `<li><span>${esc(l.label)}</span><b>${lineRange(l)}</b></li>`).join('')}</ul></details>
         <div class="qc-sec services"><h4>😊 其他搬家服務</h4><ul>${C.otherServices.map(t => `<li class="dot">${esc(t)}</li>`).join('')}</ul></div>
         <p class="qc-closing">${esc(C.closing)}</p>
       </div>`;
@@ -494,7 +499,7 @@
         items: bigItems.map(({ type, size, qty, name }) => ({ type, size, qty, name })),
         boxes: input.boxes, pack: input.pack, restore: input.restore, extras: input.extras,
       },
-      quote: { low: q.low, high: q.high, lines: q.lines.map(l => `${l.label} ${l.min === l.max ? money(l.min) : money(l.min) + '～' + money(l.max)}`) },
+      quote: { low: q.low, high: q.high, shown: priceText(q), lines: q.lines.map(l => `${l.label} ${l.min === l.max ? money(l.min) : money(l.min) + '～' + money(l.max)}`) },
     };
   }
 
@@ -514,7 +519,7 @@
       bigItems.length ? `大型物品：${bigText().join('、')}` : null,
       add ? `加購：${add}` : null,
       ext ? `另外報價：${ext}` : null,
-      `估價：${b.quote.low === b.quote.high ? money(b.quote.low) : money(b.quote.low) + '～' + money(b.quote.high)}`,
+      `估價（內部精準）：${b.quote.low === b.quote.high ? money(b.quote.low) : money(b.quote.low) + '～' + money(b.quote.high)}｜客人看到：${b.quote.shown}`,
       `來源：${b.heard || '沒填'}${b.src ? `（網址 ${b.src}）` : ''}`,
       b.note ? `附註：${b.note}` : null,
     ].filter(x => x != null).join('\n');
@@ -527,7 +532,7 @@
       `小丞你好，我是${b.name}，在官網估價：`,
       `希望 ${dateText(b.date)} ${b.slotLabel}`,
       `${j.fromCity}${j.fromDist} → ${j.toCity}${j.toDist}，${j.loadLabel}`,
-      `估價 ${b.quote.low === b.quote.high ? money(b.quote.low) : money(b.quote.low) + '～' + money(b.quote.high)}`,
+      `估價 ${b.quote.shown}`,
     ].join('\n');
   }
 
