@@ -127,6 +127,9 @@
           <p style="white-space:pre-line">${esc(c.post ? postParts(c).b : c.text)}</p>
         </div></article>`).join('') || '<div class="empty">案例準備中。</div>';
 
+    $('#casesTitle').classList.toggle('hide', !S.cases.length);
+    $('#casesAll').classList.toggle('hide', !S.cases.length);
+
     // 首頁：一支主打影片＋兩個案例，簡單乾淨
     const fv = S.videos[0], fc = S.cases.slice(0, 2);
     $('#featureHome').innerHTML = (fv ? `
