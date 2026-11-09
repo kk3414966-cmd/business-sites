@@ -8,7 +8,8 @@ window.SITE = {
 
   // 預約送到哪裡（Cloudflare Worker）。空白 = 測試模式，不會真的送出
   bookingUrl: 'https://moving-booking.kk3414966.workers.dev',
-  photoUrl: 'https://moving-photos.kk3414966.workers.dev',   // 照片上傳 Worker（客人照片存 R2，30 天後自動刪除）；留空＝照片改由客人自己在 LINE 傳
+  photoUrl: 'https://moving-photos.kk3414966.workers.dev',
+  feedUrl: 'https://moving-fbfeed.kk3414966.workers.dev',   // 粉專同步 Worker（影片、搬家貼文）   // 照片上傳 Worker（客人照片存 R2，30 天後自動刪除）；留空＝照片改由客人自己在 LINE 傳
   // 後台存的內容和照片放在 GitHub（正式網站上會直接讀同一個網站的檔案）
   contentFilesBase: 'https://raw.githubusercontent.com/kk3414966-cmd/business-sites/main/moving/',
   hero: '',

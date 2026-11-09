@@ -361,3 +361,5 @@ footer b{color:var(--white)}
 
 .size-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .size-grid .f select{padding-left:8px;padding-right:2px}
+.case-b p{display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden}
+.case-more{display:inline-block;margin-top:8px;font-weight:700;font-size:14px;color:var(--blue,#1d6fe0)}

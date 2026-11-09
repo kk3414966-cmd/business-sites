@@ -107,6 +107,22 @@
     } catch (e) { /* 還沒有後台內容，先用示範內容 */ }
   }
 
+  // 粉專同步：影片＋搬家貼文直接從粉專來（失敗就維持原本內容）
+  async function loadFeed() {
+    if (!S.feedUrl) return;
+    try {
+      const r = await fetch(S.feedUrl + '/feed');
+      const j = await r.json();
+      if (!j.ok) return;
+      const img = x => S.feedUrl + '/img/' + x.id;
+      const head = t => String(t).split('\n')[0].replace(/^[^\u4e00-\u9fa5A-Za-z0-9【]+/, '').slice(0, 40);
+      if ((j.videos || []).length) S.videos = j.videos.map(x => ({ img: img(x), title: head(x.text), url: x.url }));
+      if ((j.cases || []).length) S.cases = j.cases.map(x => ({ img: img(x), post: x.text, url: x.url }));
+      fromCms = true;
+      renderContent();
+    } catch (e) { /* 連不到粉專就用原本的 */ }
+  }
+
   function renderContent() {
     const demoBadge = fromCms ? '' : '<span class="badge">示範</span>';
     if (S.hero) $('.hero-img').style.backgroundImage = `url("${pic(S.hero)}")`;
@@ -124,7 +140,7 @@
         <div class="case-b">
           <div class="route">${c.post ? esc(caseTitle(c)) : (c.from ? esc(c.from) + '<span aria-hidden="true">→</span>' : '') + esc(c.to)}${fromCms ? '' : '<em class="badge">示範</em>'}</div>
           <div class="tags">${caseTags(c).map(t => `<span>${esc(t)}</span>`).join('')}</div>
-          <p style="white-space:pre-line">${esc(c.post ? postParts(c).b : c.text)}</p>
+          <p style="white-space:pre-line">${esc(c.post ? postParts(c).b : c.text)}</p>${c.url ? `<a class="case-more" href="${esc(c.url)}" target="_blank" rel="noopener">到粉專看原文 →</a>` : ''}
         </div></article>`).join('') || '<div class="empty">案例準備中。</div>';
 
     $('#casesTitle').classList.toggle('hide', !S.cases.length);
@@ -156,7 +172,7 @@
       + (used.length ? `<div class="cards">${used.map(u => `<div class="card used${u.sold ? ' sold' : ''}">${u.img ? `<div class="u-img"><img src="${esc(pic(u.img))}" alt="${esc(u.title)}" loading="lazy">${u.sold ? '<span class="sold-tag">已售出</span>' : ''}</div>` : ''}<b>${esc(u.title)}</b><p class="hint">${esc(u.text)}</p>${u.price ? `<b class="num price">${money(u.price)}</b>` : ''}</div>`).join('')}</div>` : '');
   }
   renderContent();
-  loadCms();
+  loadCms().then(loadFeed);
 
   $('#faqList').innerHTML = S.faq.map(f => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('');
 
