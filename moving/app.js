@@ -57,8 +57,22 @@
   /* =========================================================
      分頁
      ========================================================= */
-  const VIEWS = ['home', 'quote', 'gallery', 'used', 'clear'];
+  const VIEWS = ['home', 'quote', 'gallery', 'used'];
+  // 線上估價頂端：搬家（4 步驟）／清運／清潔（填資料＋照片傳 LINE）
+  function pickSvc(k) {
+    const clear = k === 'haul' || k === 'clean';
+    $('#moveFlow').classList.toggle('hide', clear); $('#clearFlow').classList.toggle('hide', !clear);
+    const r = document.querySelector(`input[name="svcpick"][value="${k}"]`); if (r) r.checked = true;
+    if (clear) { const v = k === 'clean' ? '清潔（打掃）' : '家具／雜物清運', rr = document.querySelector(`#cSvc input[value="${v}"]`); if (rr) rr.checked = true;
+      const isC = k === 'clean';
+      $('#cItemsT').textContent = isC ? '要清潔的地方' : '要清的東西';
+      $('#cItemsL').textContent = isC ? '幾房幾廳幾坪？哪些地方要打掃（廚房、浴室、陽台…）？有什麼特別髒的？' : '大概有什麼、多少？（有重物、大型家具也請寫）';
+      $('#cItems').placeholder = isC ? '例如：3 房 2 廳約 30 坪，廚房油垢多、2 間浴室' : '例如：舊沙發 1 張、床墊 2 個、衣櫃 1 組、雜物約 10 袋';
+    }
+  }
+  document.addEventListener('change', e => { if (e.target.name === 'svcpick') pickSvc(e.target.value); });
   function go(v, keepScroll) {
+    if (v === 'clear') { v = 'quote'; setTimeout(() => pickSvc('haul')); }
     if (!VIEWS.includes(v)) v = 'home';
     VIEWS.forEach(x => $('#v-' + x).classList.toggle('hide', x !== v));
     $$('.tabs a').forEach(a => { if (a.dataset.go === v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
@@ -71,6 +85,7 @@
   document.addEventListener('click', e => {
     const a = e.target.closest('[data-go]'); if (!a) return;
     e.preventDefault(); go(a.dataset.go);
+    if (a.dataset.svc) pickSvc(a.dataset.svc);
   });
 
   /* =========================================================
@@ -612,7 +627,7 @@
       `地址：${$('#cAddr').value.trim()}`,
       `樓層：${$('#cFloor').value}／${$('#cElev').value}`,
       `路線：${$('#cRoute').value.trim() || '（未填）'}`,
-      `物品：${$('#cItems').value.trim() || '（見照片）'}`,
+      `${document.querySelector('#cItemsT').textContent === '要清潔的地方' ? '清潔範圍' : '物品'}：${$('#cItems').value.trim() || '（見照片）'}`,
       $('#cWhen').value.trim() ? `希望日期：${$('#cWhen').value.trim()}` : '',
       `照片：${files.length} 張`,
     ].filter(Boolean).join('\n');

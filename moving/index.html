@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Barlow+Condensed:wght@600;800&display=swap">
 <link rel="preload" as="image" href="uploads/20261103-hn2i62.jpg">
-<link rel="stylesheet" href="style.css?v=20261109b">
+<link rel="stylesheet" href="style.css?v=20261109c">
 </head>
 <body>
 
@@ -23,7 +23,6 @@
       <a href="#quote" data-go="quote">線上估價</a>
       <a href="#gallery" data-go="gallery">搬家實錄</a>
       <a href="#used" data-go="used">二手家具</a>
-      <a href="#clear" data-go="clear">清運估價</a>
     </nav>
   </div>
 </header>
@@ -56,7 +55,7 @@
         <div class="start2">
           <div class="card"><h3>最快：拍照傳 LINE</h3><p>拍幾張家裡的照片傳給小丞，小丞親自幫你抓價格，不用填表。</p><a class="btn btn-line" data-href="lineUrl" target="_blank" rel="noopener">📷 拍照傳 LINE 估價</a></div>
           <div class="card"><h3>想先看價格：線上估價</h3><p>選搬家內容、日期，直接看到費用區間，再決定要不要約。</p><a class="btn btn-y" href="#quote" data-go="quote">1 分鐘線上估價</a></div>
-          <div class="card"><h3>清運、清潔：填資料＋傳照片</h3><p>填地址、樓層、路線，附上要清的東西照片，一鍵傳給小丞估價。</p><a class="btn btn-n" href="#clear" data-go="clear">清運／清潔估價</a></div>
+          <div class="card"><h3>清運、清潔：填資料＋傳照片</h3><p>填地址、樓層、路線，附上要清的東西照片，一鍵傳給小丞估價。</p><a class="btn btn-n" href="#quote" data-go="quote" data-svc="haul">清運／清潔估價</a></div>
         </div>
       </div>
     </section>
@@ -82,6 +81,17 @@
 
   <!-- ===================== 線上估價 ===================== -->
   <div class="view hide" id="v-quote">
+    <div class="pad svc-pad"><div class="in qwrap">
+      <div class="card">
+        <h3>要估什麼？</h3>
+        <div class="chips wide" id="svcPick">
+          <label class="chip"><input type="radio" name="svcpick" value="move" checked><span>🚚 搬家</span></label>
+          <label class="chip"><input type="radio" name="svcpick" value="haul"><span>🛋 家具／雜物清運</span></label>
+          <label class="chip"><input type="radio" name="svcpick" value="clean"><span>🧹 清潔（打掃）</span></label>
+        </div>
+      </div>
+    </div></div>
+    <div id="moveFlow">
     <div class="steps pad"><div class="in"><ol id="stepBar">
       <li data-s="1"><b>1</b>搬家內容</li><li data-s="2"><b>2</b>日期時段</li><li data-s="3"><b>3</b>報價單</li><li data-s="4"><b>4</b>聯絡方式</li>
     </ol></div></div>
@@ -232,10 +242,8 @@
       </div>
       <p class="warn hide" id="stepWarn"></p>
     </div>
-  </div>
-
-  <!-- ===================== 搬家實錄 ===================== -->
-  <div class="view hide" id="v-clear">
+    </div>
+    <div id="clearFlow" class="hide">
     <div class="pad"><div class="in qwrap">
       <form class="step" id="clearForm" autocomplete="off" novalidate>
         <div class="card">
@@ -260,8 +268,8 @@
           <label class="f"><span>車子能停哪？離門口多遠？有沒有樓梯、巷子寬不寬？</span><textarea id="cRoute" rows="3" maxlength="400" placeholder="例如：大樓有地下停車場，車可以開進去，電梯到 5 樓"></textarea></label>
         </div>
         <div class="card">
-          <h3>要清的東西</h3>
-          <label class="f"><span>大概有什麼、多少？（有重物、大型家具也請寫）</span><textarea id="cItems" rows="3" maxlength="500" placeholder="例如：舊沙發 1 張、床墊 2 個、衣櫃 1 組、雜物約 10 袋"></textarea></label>
+          <h3 id="cItemsT">要清的東西</h3>
+          <label class="f"><span id="cItemsL">大概有什麼、多少？（有重物、大型家具也請寫）</span><textarea id="cItems" rows="3" maxlength="500" placeholder="例如：舊沙發 1 張、床墊 2 個、衣櫃 1 組、雜物約 10 袋"></textarea></label>
           <label class="f"><span>拍照（可以一次選多張，最多 9 張）</span><input id="cPhotos" type="file" accept="image/*" multiple></label>
           <div class="thumbs" id="cThumbs"></div>
         </div>
@@ -278,8 +286,10 @@
         <p class="muted-p" id="cHelp">按下後手機會跳出分享選單，選「LINE」再選小丞就好。如果沒有跳出，資料已複製，請直接貼到小丞的 LINE。</p>
       </form>
     </div></div>
+    </div>
   </div>
 
+  <!-- ===================== 搬家實錄 ===================== -->
   <div class="view hide" id="v-gallery">
     <section class="sec pad"><div class="in">
       <h2>搬家實錄</h2><p class="sub">每一趟都是真的現場。</p>
@@ -308,7 +318,7 @@
 <script src="../shared/quote.js"></script>
 <script src="../shared/route.js"></script>
 <script src="content.js"></script>
-<script src="app.js?v=20261109b"></script>
+<script src="app.js?v=20261109c"></script>
 <!-- Cloudflare 網站分析（計算有多少人來看，不記個人資料） -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "149467486bfe41719c719ac2ca556ad4", "spa": true}'></script>
 </body>
