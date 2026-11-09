@@ -50,7 +50,7 @@ img{max-width:100%}
 
 /* 首頁大圖：照片鋪在「搬家不用煩」底下（手機、電腦都一樣重疊），用深藍漸層讓字看得清楚 */
 .hero{position:relative;background:var(--navy);color:var(--white);overflow:hidden}
-.hero-img{position:absolute;inset:0;background:var(--navy-2) url(images/hero.jpg) 62% 45%/cover no-repeat}
+.hero-img{position:absolute;inset:0;background:var(--navy-2) url(uploads/20261103-hn2i62.jpg) 62% 45%/cover no-repeat}
 .hero-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,39,71,.38) 0%,rgba(15,39,71,.66) 42%,rgba(15,39,71,.9) 100%)}
 .hero-text{position:relative}
 .hero-text .in{padding-block:28px 34px}
@@ -330,3 +330,16 @@ footer b{color:var(--white)}
 .mbar .btn{flex:1;min-height:46px;padding:8px}
 @media(min-width:861px){.mbar{display:none}body.page-home,body.page-gallery,body.page-used{padding-bottom:0}}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--white);padding:10px 18px;border-radius:999px;font-size:15px;z-index:40}
+
+/* 首頁：一條龍包含什麼、兩種開始方式 */
+.flow{list-style:none;margin:14px 0 18px;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.flow li{display:flex;gap:10px;align-items:flex-start;background:var(--white);border:1px solid var(--line);border-radius:12px;padding:12px}
+.flow li b{flex:none;width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--yellow);display:grid;place-items:center;font-size:15px}
+.flow li span{font-weight:700;line-height:1.3}
+.flow li small{display:block;font-weight:400;color:#555;font-size:13px;margin-top:2px}
+.start2{display:grid;grid-template-columns:1fr;gap:12px}
+.start2 .card h3{margin:0 0 4px}
+.start2 .card p{margin:0 0 12px;color:#444}
+.start2 .btn{width:100%}
+@media(min-width:700px){.flow{grid-template-columns:repeat(4,1fr)}.start2{grid-template-columns:1fr 1fr}}
+.hero .row .btn{flex:1 1 220px}
