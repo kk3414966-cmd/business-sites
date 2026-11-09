@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>正式報價單｜小丞台中搬家</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+*{box-sizing:border-box}
+body{margin:0;font-family:'Noto Sans TC',system-ui,sans-serif;background:#EEF1F5;color:#1E293B;font-size:15px}
+.wrap{max-width:430px;margin:0 auto;min-height:100vh;background:#F5F7FA;padding-bottom:40px}
+
+
+
+
+.banner{background:#FEF9E7;color:#7A5B00;font-size:12px;line-height:1.6;padding:8px 14px}
+section{background:#fff;border-radius:14px;margin:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+h1{margin:0;font-size:20px;color:#1F3A5F} h2{margin:0;font-size:15px;color:#1F3A5F}
+label{font-size:13px;color:#64748B}
+input,textarea{width:100%;min-height:44px;border:1px solid #CBD5E1;border-radius:10px;padding:0 12px;font:inherit;font-size:16px;background:#fff}
+textarea{padding:10px 12px;min-height:70px}
+.row{display:flex;gap:8px;align-items:center}
+.row input{text-align:right}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid #CBD5E1;background:#fff;color:#334155;font:inherit;font-size:14px}
+.chip.on{background:#1F3A5F;border:2px solid #1F3A5F;color:#fff}
+.btn{min-height:50px;border:0;border-radius:12px;background:#1F3A5F;color:#fff;font:inherit;font-size:16px;font-weight:700;width:100%}
+.btn:disabled{background:#94A3B8}
+.btn.sec{background:#fff;color:#1F3A5F;border:2px solid #1F3A5F}
+.btn.sm{min-height:44px;font-size:14px;width:auto;padding:0 14px}
+.muted{color:#64748B;font-size:13px;line-height:1.6}
+.sp{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.big{font-size:30px;font-weight:700;color:#1F3A5F}
+.box{background:#F8FAFC;border-radius:10px;padding:12px;font-size:13px;line-height:1.7;color:#334155}
+.scroll{max-height:200px;overflow:auto;border:1px solid #E2E8F0;border-radius:10px;padding:12px;font-size:13px;line-height:1.8;color:#334155}
+.pill{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:700}
+.p0{background:#FEF3C7;color:#92400E}.p1{background:#DCFCE7;color:#166534}.p2{background:#E2E8F0;color:#475569}
+canvas{width:100%;height:150px;border:2px dashed #94A3B8;border-radius:10px;background:#fff;touch-action:none}
+.hint{font-size:12px;color:#B45309}
+.card{border:1px solid #E2E8F0;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.hide{display:none!important}
+
+@media print{.noprint{display:none!important}.scroll{max-height:none!important;overflow:visible!important}body{background:#fff}.wrap{max-width:none}}
+
+</style>
+</head>
+<body>
+<div class="wrap"><div id="app"><section><div class="muted">載入中…</div></section></div></div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+const firebaseConfig = { apiKey: 'AIzaSyBwh4mGhuZpw-TrjZnikHc6gBGv8sue2EM', authDomain: 'moving-app-ac208.firebaseapp.com', projectId: 'moving-app-ac208', appId: '1:814553133689:web:f280dcda158fb8a9da5aa8' };
+var APP = document.getElementById('app');
+var CUR = null, DEMO = false, REF = null, DB = null;
+var CURLIM = 15000;
+function $(id){return document.getElementById(id)}
+function fm(v){return 'NT$ '+Number(v).toLocaleString('en-US')}
+function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function fmtAt(t){ try{ return new Date(t).toLocaleString('zh-TW'); }catch(e){ return ''; } }
+var NOTICE = [
+ '現場物品數量、樓層、電梯、搬運距離和報價不同時，我們會先跟您說明，您同意後才調整；沒有同意不會加價。',
+ '日期與時間確認後，我們會保留這個時段。',
+ '訂金為總金額的 10%，確認後支付；其餘在完工後以現金或轉帳付清。',
+ '搬家日三天前取消，訂金全額退還；三天內取消，會扣除已安排的人力費用（金額會先跟您說明）。',
+ '搬運中如有物品損壞，我們會當場跟您確認、說明並協商處理。',
+ '易碎、貴重物品請自行收好或事先告知。',
+ '電梯故障等無法預期的狀況，我們會當場說明並討論怎麼處理。',
+ '行程如有變動，請在 LINE 通知我們。'
+];
+
+/* ---------- Customer side ---------- */
+var checked=false, sigDrawn=false;
+function renderCust(){
+ var q=CUR;
+ if(!q){ APP.innerHTML='<section><h2>客人畫面</h2><div class="muted">請先在「老闆 APP」開一張報價單，再按清單裡的「模擬客人打開」。</div><button class="btn" id="goA">回老闆 APP</button></section>'; $('goA').onclick=function(){setView('app')}; return; }
+ if(q.status==='作廢'){ APP.innerHTML='<section><h1>此報價單已作廢</h1><div class="muted">如有疑問，請在 LINE 聯絡我們。</div></section>'; return; }
+ var done=q.status==='已確認', need=q.total>CURLIM;
+ var h='<section style="background:#1F3A5F;color:#fff;margin:0;border-radius:0"><div style="color:#F2B705;font-size:13px;font-weight:700">小丞台中搬家</div><h1 style="color:#fff">正式報價單</h1><div style="font-size:13px;opacity:.85">單號 '+esc(q.id)+'（範例資料）</div></section>';
+ h+='<section><h2>搬家資料</h2><div class="box"><b>'+esc(q.name)+'</b><br>'+esc(q.date)+'<br>舊址：'+esc(q.from)+'<br>新址：'+esc(q.to)+'</div></section>';
+ h+='<section><h2>服務項目</h2>'+q.items.map(function(i){return '<div class="row" style="align-items:flex-start"><span style="color:#15803D;font-weight:700">✓</span><div style="flex:1">'+esc(i.name)+(i.sub?'<div class="muted">'+esc(i.sub)+'</div>':'')+'</div><b style="white-space:nowrap">'+fm(i.amt)+'</b></div>'}).join('');
+ (q.boxes||[]).forEach(function(bx){ h+='<div class="box"><b style="color:#1F3A5F">'+bx.t+'</b><br>'+bx.h+'</div>'; });
+ h+='</section>';
+ h+='<section style="border:2px solid #F2B705">'+(q.disc?'<div class="sp"><span class="muted">小計</span><span>'+fm(q.sub)+'</span></div><div class="sp"><span class="muted">優惠折扣</span><span style="color:#B45309">－'+fm(q.disc)+'</span></div>':'')
+ +'<div class="sp"><span class="muted">總價</span><span class="big">'+fm(q.total)+'</span></div><div style="height:1px;background:#E2E8F0"></div>'
+ +'<div class="sp"><span class="muted">訂金（總金額的 10%）</span><b>'+fm(q.dep)+'</b></div><div class="sp"><span class="muted">付款方式</span><span>現金或轉帳</span></div><div class="muted">尾款完工後付清。</div></section>';
+ if(q.note) h+='<section><h2>老闆給您的備註</h2><div class="box">'+esc(q.note)+'</div></section>';
+ if(done){
+  h+='<section><h1 style="color:#166534">✓ 已確認</h1><div class="muted">'+esc(fmtAt(q.confirmedAt))+(q.sig?' ・已簽名':'')+'<br>我們已收到您的確認，謝謝！</div>'
+  +(q.sig?'<img alt="簽名" src="'+q.sig+'" style="width:100%;border:1px solid #E2E8F0;border-radius:10px">':'')
+  +(q.custNote?'<div class="box">您的備註：'+esc(q.custNote)+'</div>':'')
+  +'<button class="btn sec noprint" id="prt">下載留底（存成 PDF）</button><button class="btn sec noprint" id="copy">複製報價單文字</button><div class="muted" id="cmsg"></div></section>';
+  var pp=q.pay||{};
+  h+='<section style="border:2px solid #1F3A5F"><h2>付款資訊</h2><div class="muted">請先轉帳訂金，我們收到後會跟您聯絡確認。</div><div class="sp"><span class="muted">訂金（總金額的 10%）</span><span class="big" style="font-size:26px">'+fm(q.dep)+'</span></div>'
+  +(pp.acct?'<div class="box"><b>'+esc(pp.bank)+'</b><br>帳號：<b id="acctTxt">'+esc(pp.acct)+'</b><br>戶名：'+esc(pp.holder)+'</div><button class="btn sm sec" id="copyAcct">複製帳號</button><div class="muted" id="amsg"></div>':'<div class="box hint">老闆還沒設定收款帳號（請先在老闆 APP 清單最上面填）。</div>')
+  +'<div class="muted">尾款在完工後付清，現金或轉帳都可以。</div></section>';
+  APP.innerHTML=h; $('copy').onclick=function(){copyQuote(q)}; if($('prt')) $('prt').onclick=function(){ try{window.print()}catch(e){} };
+  if($('copyAcct')) $('copyAcct').onclick=function(){ var m=$('amsg'); try{ navigator.clipboard.writeText(pp.acct).then(function(){m.textContent='已複製帳號'},function(){m.textContent='這裡無法複製，請手動選取。'}); }catch(e){ m.textContent='這裡無法複製，請手動選取。'; } };
+  return;
+ }
+ h+='<section><h2>注意事項</h2><div class="scroll">'+NOTICE.map(function(t,i){return (i+1)+'. '+t}).join('<br>')+'</div>'
+ +'<label style="display:flex;gap:10px;align-items:flex-start;font-size:15px;color:#1E293B;min-height:44px"><input type="checkbox" id="agree" style="width:26px;min-height:26px;flex:none"'+(checked?' checked':'')+'> 我已閱讀並同意以上注意事項</label></section>';
+ if(need) h+='<section style="'+(checked?'':'opacity:.45')+'"><h2>手寫簽名（總價超過 NT$15,000 需要，先勾選同意才能簽）</h2><canvas id="sig"></canvas><div class="row"><button class="btn sm sec" id="clr">清除重簽</button></div></section>';
+ h+='<section><label for="cn">您的備註（選填）</label><textarea id="cn" placeholder="想跟我們說的話"></textarea><button class="btn noprint" id="ok">'+(need?'簽名並確認這份報價':'確認這份報價')+'</button><div class="hint" id="err"></div>'
+ +'<button class="btn sec noprint" id="prt">下載留底（存成 PDF）</button><button class="btn sec noprint" id="copy">複製報價單文字</button><div class="muted" id="cmsg"></div></section>';
+ APP.innerHTML=h;
+ function sync(){ var b=$('ok'); b.disabled=!checked; }
+ sync();
+ $('agree').onchange=function(){checked=this.checked; var cn=$('cn').value; renderCust(); $('cn').value=cn};
+ $('copy').onclick=function(){copyQuote(q)}; if($('prt')) $('prt').onclick=function(){ try{window.print()}catch(e){} };
+ if(need){ initSig(); $('clr').onclick=function(){ clearSig(); }; }
+ $('ok').onclick=function(){
+  if(!checked){ return; }
+  if(need&&!sigDrawn){ $('err').textContent='請先在上方簽名'; return; }
+  var btn=$('ok'); btn.disabled=true; btn.textContent='送出中…';
+  var patch={custNote:$('cn').value,status:'已確認',confirmedAt:new Date().toISOString()};
+  if(need){ try{ patch.sig=$('sig').toDataURL('image/png'); }catch(e){ patch.sig=null; } }
+  submitConfirm(patch).then(function(){ Object.assign(q,patch); checked=false; sigDrawn=false; renderCust(); window.scrollTo(0,0); })
+   .catch(function(err){ btn.disabled=false; btn.textContent=need?'簽名並確認這份報價':'確認這份報價'; $('err').textContent='送出失敗，請確認網路後再按一次（'+(err&&err.code?err.code:'錯誤')+'）'; });
+ };
+}
+var ctx=null, drawing=false;
+function initSig(){
+ var c=$('sig'), r=c.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+ c.width=r.width*dpr; c.height=r.height*dpr; ctx=c.getContext('2d'); ctx.scale(dpr,dpr); ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.strokeStyle='#1F3A5F';
+ function pos(e){var b=c.getBoundingClientRect();return {x:e.clientX-b.left,y:e.clientY-b.top}}
+ c.onpointerdown=function(e){ if(!checked)return; drawing=true; var p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); c.setPointerCapture(e.pointerId); };
+ c.onpointermove=function(e){ if(!drawing)return; var p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); sigDrawn=true; };
+ c.onpointerup=function(){drawing=false};
+}
+function clearSig(){ var c=$('sig'); ctx.clearRect(0,0,c.width,c.height); sigDrawn=false; }
+function copyQuote(q){
+ var t='【正式報價單】'+q.id+'\n客人：'+q.name+'\n日期：'+q.date+'\n舊址：'+q.from+'\n新址：'+q.to+'\n\n服務項目：\n'
+ +q.items.map(function(i){return '・'+i.name+'　'+fm(i.amt)}).join('\n')+'\n'+(q.disc?'優惠折扣：－'+fm(q.disc)+'\n':'')+'\n總價：'+fm(q.total)+'\n訂金：'+fm(q.dep)+'\n付款：現金或轉帳，尾款完工後付清\n\n注意事項：\n'+NOTICE.map(function(x,i){return (i+1)+'. '+x}).join('\n')+'\n\n狀態：'+q.status;
+ var m=$('cmsg');
+ try{ navigator.clipboard.writeText(t).then(function(){m.textContent='已複製，可貼到記事本或 LINE 留底。'},function(){m.textContent='這裡無法複製，請改用上面的「下載留底」。'}); }catch(e){ m.textContent='這裡無法複製，請改用上面的「下載留底」。'; }
+}
+
+
+async function submitConfirm(patch){
+  if(DEMO) return;
+  await updateDoc(REF, patch);
+}
+async function load(){
+  var p=new URLSearchParams(location.search), t=p.get('t')||'';
+  if(p.has('demo')){ DEMO=true; CUR=demoQuote(); renderCust(); return; }
+  if(!/^[a-z0-9]{16,64}$/.test(t)){ APP.innerHTML='<section><h1>找不到這份報價單</h1><div class="muted">請確認連結是否完整，或在 LINE 聯絡我們。</div></section>'; return; }
+  try{
+    DB=getFirestore(initializeApp(firebaseConfig)); REF=doc(DB,'quotes',t);
+    var snap=await getDoc(REF);
+    if(!snap.exists()){ APP.innerHTML='<section><h1>找不到這份報價單</h1><div class="muted">請確認連結是否完整，或在 LINE 聯絡我們。</div></section>'; return; }
+    CUR=Object.assign({id:t},snap.data()); renderCust();
+  }catch(e){ APP.innerHTML='<section><h1>暫時打不開</h1><div class="muted">請稍後重新整理，或在 LINE 聯絡我們。</div></section>'; }
+}
+function demoQuote(){
+  return {id:'demo',no:'Q-DEMO-01',name:'王小姐（範例）',date:'11/20（五）上午 9:00',from:'台中市北屯區○○路 5 樓（無電梯）',to:'台中市西屯區○○路 12 樓（有電梯）',
+   items:[{name:'搬運',sub:'每車 NT$ 7,000 × 預估 2 車（實際車趟數當天看現場確認）',amt:14000},{name:'打包',sub:'NT$ 3,000／2 小時，超過每小時 1,500',amt:3000},{name:'清運',sub:'',amt:2800}],
+   sub:19800,disc:800,total:19000,dep:1900,note:'電梯已預約',status:'未確認',pay:{bank:'（範例）○○銀行',acct:'0000-0000-0000',holder:'範例戶名'},
+   boxes:[{t:'代客包裝',h:'NT$ 3,000／2 小時；超過時間每小時 NT$ 1,500。<br>・不用事先準備包材，我們自備包材到府'}]};
+}
+load();
+</script>
+</body>
+</html>
