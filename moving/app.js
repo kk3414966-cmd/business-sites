@@ -546,7 +546,7 @@
     ].join('\n');
   }
 
-  let lastBooking = null, lastClearText = '';
+  let lastBooking = null, lastClearText = '', photoFail = 0;
   async function submit() {
     if (mode !== 'move') return clearSubmit();
     const err = $('#bError'); err.classList.add('hide');
@@ -677,9 +677,25 @@
     lines.push(`稱呼：${$('#name').value.trim()}　電話：${$('#phone').value.trim()}`);
     if ($('#lineName').value.trim()) lines.push(`LINE 名稱：${$('#lineName').value.trim()}`);
     if ($('#note').value.trim()) lines.push(`附註：${$('#note').value.trim()}`);
-    const text = `【搬家專車 線上估價】${SVC_NAME[mode]}\n` + lines.join('\n') + (cFiles.length ? '\n（照片客人會另外在 LINE 傳給你）' : '');
-    lastClearText = text;
     const btn = $('#nextBtn'); btn.disabled = true; btn.textContent = '送出中…';
+    // 先把照片傳到雲端，拿到連結放進通知；沒設定或失敗就退回「客人另外在 LINE 傳」
+    let photoUrls = [];
+    if (cFiles.length && S.photoUrl && !DEMO) {
+      const up = async f => {
+        const r = await fetch(S.photoUrl.replace(/\/$/, '') + '/photo', { method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: f });
+        if (!r.ok) throw new Error('photo ' + r.status);
+        return (await r.json()).url;
+      };
+      const res = await Promise.allSettled(cFiles.map(up));
+      photoUrls = res.filter(x => x.status === 'fulfilled' && x.value).map(x => x.value);
+      res.filter(x => x.status === 'rejected').forEach(x => console.error(x.reason));
+    }
+    photoFail = cFiles.length - photoUrls.length;
+    let photoTxt = '';
+    if (photoUrls.length) photoTxt = '\n照片連結（' + photoUrls.length + ' 張）：\n' + photoUrls.join('\n') + (photoFail ? `\n（另有 ${photoFail} 張沒傳成功，客人會另外在 LINE 傳）` : '');
+    else if (cFiles.length) photoTxt = '\n（照片客人會另外在 LINE 傳給你）';
+    const text = `【搬家專車 線上估價】${SVC_NAME[mode]}\n` + lines.join('\n') + photoTxt;
+    lastClearText = text;
     const slot = S.slots.find(x => x.id === selSlot);
     let sent = false;
     try {
@@ -711,7 +727,7 @@
     }
     $('#notifyPreview').classList.toggle('hide', !DEMO);
     $('#notifyText').textContent = text;
-    $('#sharePhotos').classList.toggle('hide', !cFiles.length);
+    $('#sharePhotos').classList.toggle('hide', !(cFiles.length && photoFail));
     $('#doneTitle').textContent = sent ? '✓ 已通知小丞！' : '✓ 請把資料傳給小丞';
     showStep('done'); window.scrollTo(0, 0);
   }

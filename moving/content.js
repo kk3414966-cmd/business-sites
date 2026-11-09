@@ -8,6 +8,7 @@ window.SITE = {
 
   // 預約送到哪裡（Cloudflare Worker）。空白 = 測試模式，不會真的送出
   bookingUrl: 'https://moving-booking.kk3414966.workers.dev',
+  photoUrl: '',   // 照片上傳 Worker 網址（部署後填入）；留空＝照片仍由客人自己在 LINE 傳
   // 後台存的內容和照片放在 GitHub（正式網站上會直接讀同一個網站的檔案）
   contentFilesBase: 'https://raw.githubusercontent.com/kk3414966-cmd/business-sites/main/moving/',
   hero: '',
