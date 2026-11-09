@@ -380,10 +380,25 @@
     $('#raiseMsg').classList.toggle('hide', !Q.needsRaise(bigItems, S.bigItemTypes, P));
   }
 
+  // 車數：客人沒自己動過，就依大型物品自動建議；動過就尊重他的選擇
+  let loadTouched = false;
+  $('#loads').addEventListener('change', () => { loadTouched = true; });
+  const setLoad = id => { const el = document.querySelector(`#loads input[value="${id}"]`); if (el) el.checked = true; };
+  function renderLoadHint() {
+    const el = $('#loadHint');
+    if (!bigItems.length) { el.textContent = '先選上面的大型家具、家電，我們會幫你估要幾車；也可以自己改。不確定就選「不確定」。'; return; }
+    const pct = volPct(), sug = Q.suggestLoad(pct, P), cur = radio('load');
+    const flat = `約佔一台平車的 ${pct}%`;
+    if (cur === sug || cur === 'unknown') el.textContent = `依你選的東西，我們估「${loadLabel(sug)}」比較剛好（${flat}）。紙箱、雜物也要算進去，可以自己改。`;
+    else el.textContent = `你選了「${loadLabel(cur)}」；依你選的東西，我們建議「${loadLabel(sug)}」（${flat}），可以自己決定。`;
+    if (pct > P.truck.maxPct * 3) el.textContent += ' 東西很多，建議傳照片讓我們看一下。';
+  }
+
   let current = null;
   function refresh() {
     if (mode !== 'move') { renderQuick(); renderCal(); renderSlots(); return; }
-    renderVol();
+    if (!loadTouched) setLoad(bigItems.length ? Q.suggestLoad(volPct(), P) : 'half');
+    renderVol(); renderLoadHint();
     const input = readInput();
     $('#floorRow').classList.toggle('hide', input.carry === '1');
     const kmEl = $('#kmHint');

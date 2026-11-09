@@ -141,6 +141,15 @@
     return { level: 'more', suggest: next.id };
   }
 
+  // 依大型物品材積（佔一台平車的 %）建議車數：每車最多裝 maxPct%，半車算 50%。
+  function suggestLoad(pct, P) {
+    const cap = P.truck.maxPct;
+    if (pct <= cap * 0.5) return 'half';
+    if (pct <= cap) return '1';
+    if (pct <= cap * 2) return '2';
+    return '3';
+  }
+
   /* ---------- 服務代號（跟 App 一樣）----------
      0 出 3.5 噸車、1 車旁上下貨、2 跟客戶一起搬、3 全部我搬、
      6 長途搬家、7 家具回收清運、8 代客打包、9 代客復位 */
@@ -176,5 +185,5 @@
 
   function pad2(n) { return String(n).padStart(2, '0'); }
 
-  global.MoveQuote = { estimateKm, itemsPercent, needsRaise, bigCount, loadAdvice, mileageFee, floorFee, timeFee, quote, jobHours, serviceCode, canBook, firstFreeHour, pad2 };
+  global.MoveQuote = { estimateKm, itemsPercent, needsRaise, bigCount, loadAdvice, suggestLoad, mileageFee, floorFee, timeFee, quote, jobHours, serviceCode, canBook, firstFreeHour, pad2 };
 })(window);

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Barlow+Condensed:wght@600;800&display=swap">
 <link rel="preload" as="image" href="uploads/20261103-hn2i62.jpg">
-<link rel="stylesheet" href="style.css?v=20261109i">
+<link rel="stylesheet" href="style.css?v=20261109j">
 </head>
 <body>
 
@@ -103,7 +103,28 @@
           <div class="chips wide" id="carry"></div>
         </div>
         <div class="card">
-          <h3>東西大概多少？</h3>
+          <h3>有哪些大型家具、家電？</h3>
+          <p class="hint" style="margin:0 0 10px">點一下加入，可以選尺寸，我們比較好估要多大的空間。</p>
+          <div class="chips" id="bigAdd"></div>
+          <div id="bigList"></div>
+          <div class="vol hide" id="volBox">
+            <div class="vol-head"><span id="volHead">這些東西大約佔一台平車</span><b id="volPct"></b></div>
+            <p class="vol-sub" id="volSub"></p>
+            <div class="vol-bar" aria-hidden="true"><i id="volFill"></i><span class="mark m80">建議上限</span><span class="mark m100">滿車</span></div>
+            <p class="vol-msg" id="volMsg"></p>
+            <p class="vol-msg raise hide" id="raiseMsg">大冰箱超過 2 台，比平車（120 公分）高，需要加高車篷 +$500。</p>
+            <p class="hint">平車：長 10.5 尺 × 寬 200 × 高 120 公分（可加高到 190 公分）。超過八成就建議多一車，疊太滿容易壓壞東西。</p>
+          </div>
+        </div>
+        <div class="card" id="mPhotoCard">
+          <h3>現場照片（選填）</h3>
+          <p class="hint" style="margin:0 0 10px">拍幾張家裡的大型家具、家電或要搬的東西，我們看得到現場，報價會更準。最多 9 張。</p>
+          <label class="f"><span>拍照或選照片（可以一次選多張）</span><input id="mPhotos" type="file" accept="image/*" multiple></label>
+          <div class="thumbs" id="mThumbs"></div>
+        </div>
+        <div class="card" id="loadCard">
+          <h3>建議用幾車？</h3>
+          <p class="hint" id="loadHint" style="margin:0 0 10px">先選上面的大型家具、家電，我們會幫你估要幾車；也可以自己改。</p>
           <div class="chips" id="loads"></div>
         </div>
         <div class="card">
@@ -129,26 +150,6 @@
             <label class="f"><span>舊家樓層</span><select id="fromFloor"></select></label>
             <label class="f"><span>新家樓層</span><select id="toFloor"></select></label>
           </div>
-        </div>
-        <div class="card">
-          <h3>有哪些大型家具、家電？</h3>
-          <p class="hint" style="margin:0 0 10px">點一下加入，可以選尺寸，我們比較好估要多大的空間。</p>
-          <div class="chips" id="bigAdd"></div>
-          <div id="bigList"></div>
-          <div class="vol hide" id="volBox">
-            <div class="vol-head"><span id="volHead">這些東西大約佔一台平車</span><b id="volPct"></b></div>
-            <p class="vol-sub" id="volSub"></p>
-            <div class="vol-bar" aria-hidden="true"><i id="volFill"></i><span class="mark m80">建議上限</span><span class="mark m100">滿車</span></div>
-            <p class="vol-msg" id="volMsg"></p>
-            <p class="vol-msg raise hide" id="raiseMsg">大冰箱超過 2 台，比平車（120 公分）高，需要加高車篷 +$500。</p>
-            <p class="hint">平車：長 10.5 尺 × 寬 200 × 高 120 公分（可加高到 190 公分）。超過八成就建議多一車，疊太滿容易壓壞東西。</p>
-          </div>
-        </div>
-        <div class="card" id="mPhotoCard">
-          <h3>現場照片（選填）</h3>
-          <p class="hint" style="margin:0 0 10px">拍幾張家裡的大型家具、家電或要搬的東西，我們看得到現場，報價會更準。最多 9 張。</p>
-          <label class="f"><span>拍照或選照片（可以一次選多張）</span><input id="mPhotos" type="file" accept="image/*" multiple></label>
-          <div class="thumbs" id="mThumbs"></div>
         </div>
         <div class="card">
           <h3>需要環保箱嗎？</h3>
@@ -332,8 +333,8 @@
 <script src="../shared/places.js"></script>
 <script src="../shared/quote.js"></script>
 <script src="../shared/route.js"></script>
-<script src="content.js?v=20261109i"></script>
-<script src="app.js?v=20261109i"></script>
+<script src="content.js?v=20261109j"></script>
+<script src="app.js?v=20261109j"></script>
 <!-- Cloudflare 網站分析（計算有多少人來看，不記個人資料） -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "149467486bfe41719c719ac2ca556ad4", "spa": true}'></script>
 </body>
