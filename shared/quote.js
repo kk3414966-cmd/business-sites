@@ -49,7 +49,7 @@
   /* ---------- 報價 ----------
      input: { load, carry, km, fromCity, fromFloor, toFloor, bigItems, hour,
               boxes, pack, restore, extras:[] }
-     carry '3' 全程由小丞搬：基本價＋樓層＋里程（每車算）＋大型物品包裝（一式，每車）
+     carry '3' 全程由老闆搬：基本價＋樓層＋里程（每車算）＋大型物品包裝（一式，每車）
      carry '1' 只要車＋司機：只算基本價
      時段加價、環保箱運費、打包、歸位兩種都算。 */
   function quote(input, P) {

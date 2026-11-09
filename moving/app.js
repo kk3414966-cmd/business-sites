@@ -147,7 +147,7 @@
     // 二手家具：還沒賣掉的排前面；全部賣完就顯示「已銷售完畢」
     const onSale = S.used.filter(u => !u.sold);
     const used = [...onSale, ...S.used.filter(u => u.sold)];
-    $('#usedList').innerHTML = (onSale.length ? '' : `<div class="empty" style="margin-bottom:14px">目前已銷售完畢。想找特定家具可以 <a href="${esc(B.lineUrl)}" target="_blank" rel="noopener">LINE 問小丞</a>，有貨會通知你。</div>`)
+    $('#usedList').innerHTML = (onSale.length ? '' : `<div class="empty" style="margin-bottom:14px">目前已銷售完畢。想找特定家具可以 <a href="${esc(B.lineUrl)}" target="_blank" rel="noopener">LINE 詢問</a>，有貨會通知你。</div>`)
       + (used.length ? `<div class="cards">${used.map(u => `<div class="card used${u.sold ? ' sold' : ''}">${u.img ? `<div class="u-img"><img src="${esc(pic(u.img))}" alt="${esc(u.title)}" loading="lazy">${u.sold ? '<span class="sold-tag">已售出</span>' : ''}</div>` : ''}<b>${esc(u.title)}</b><p class="hint">${esc(u.text)}</p>${u.price ? `<b class="num price">${money(u.price)}</b>` : ''}</div>`).join('')}</div>` : '');
   }
   renderContent();
@@ -243,7 +243,7 @@
   /* =========================================================
      估價：第 2 步（月曆＋時段）
      ========================================================= */
-  // 客人只選「希望時段」，實際幾點由小丞決定；價格用時段的第一個小時算（晚上 = 16:00 起）
+  // 客人只選「希望時段」，實際幾點由老闆決定；價格用時段的第一個小時算（晚上 = 16:00 起）
   // 晚上時段可以選幾點開始（選多晚加多少）
   let mode = 'move'; // move 搬家／haul 清運／clean 清潔：三種共用同一套 4 步驟
   const jobHrs = () => mode === 'move' ? Q.jobHours(readInput(), P) : 2;
@@ -312,7 +312,7 @@
   $('#calGrid').addEventListener('click', pickDate);
   $('#quickDates').addEventListener('click', pickDate);
 
-  // 時段：客人選「希望」的時段；行事曆上已有安排的時段標示出來，但還是可以選，小丞再確認
+  // 時段：客人選「希望」的時段；行事曆上已有安排的時段標示出來，但還是可以選，老闆再確認
   function renderSlots() {
     const hours = jobHrs();
     const day = AVAIL[selDate];
@@ -390,7 +390,7 @@
     kmEl.className = 'km ' + route.state;
     kmEl.textContent = route.state === 'ok' ? `依地址的開車路線：約 ${input.km} 公里`
       : route.state === 'loading' ? '正在用地址計算距離…'
-      : route.state === 'fail' ? `地址查不到，先用區域估算：約 ${input.km} 公里（小丞會再確認）`
+      : route.state === 'fail' ? `地址查不到，先用區域估算：約 ${input.km} 公里（我們會再確認）`
       : `依區域估算：約 ${input.km} 公里，填上地址會更準。`;
     $('#boxHint').textContent = input.boxes ? `箱子會先送到府，送箱時收押金 ${money(P.boxes.deposit)}，收回紙箱時歸還。` : '';
     renderQuick(); renderCal(); renderSlots();
@@ -409,7 +409,7 @@
   $('#s1').addEventListener('change', e => { refresh(); });
 
   /* =========================================================
-     報價單（照小丞的報價文案）
+     報價單（照老闆的報價文案）
      ========================================================= */
   const placeName = (city, dist) => (city === '台中市' ? dist : city + (dist || ''));
   function renderQuoteCard() {
@@ -440,11 +440,11 @@
           <div class="big"><span class="pt" aria-hidden="true">👉</span> ${priceText(q)}</div>
           <div class="when">${selDate ? `${dateText(selDate)} 希望${slot ? slot.label : ''}${slot && slot.pickHour ? ` ${pad2(slotHour())}:00 開始` : ''}<br>` : ''}${esc(placeName(input.fromCity, input.fromDist))} → ${esc(placeName(input.toCity, input.toDist))}（約 ${input.km} 公里）</div>
         </div>
-        <p class="qc-fit">這是線上預估費用區間（實際以現場狀況為準），留下聯絡方式後，小丞確認細節會再給您正式報價單。</p>
+        <p class="qc-fit">這是線上預估費用區間（實際以現場狀況為準），留下聯絡方式後，我們確認細節會再給您正式報價單。</p>
         <div class="qc-sec"><h4>包含：</h4><ul>${included.map(t => `<li class="ck">${esc(t)}</li>`).join('')}</ul></div>
         ${notes.length ? `<div class="qc-note">${notes.map(esc).join('<br>')}</div>` : ''}
         <div class="qc-sec"><h4>📌 可能產生的額外費用</h4><ul>${C.possibleExtras.map(t => `<li class="dot">${esc(t)}</li>`).join('')}</ul>
-          ${extrasLabels.length ? `<p>「${esc(extrasLabels.join('、'))}」加 LINE 傳照片，小丞馬上幫您估價。</p>` : ''}
+          ${extrasLabels.length ? `<p>「${esc(extrasLabels.join('、'))}」加 LINE 傳照片，我們馬上幫您估價。</p>` : ''}
           <p>${esc(C.promise)}</p></div>
         <details class="qc-calc"><summary>看費用怎麼算</summary><ul>${q.lines.map(l => `<li><span>${esc(l.label)}</span><b>${lineRange(l)}</b></li>`).join('')}</ul></details>
         <div class="qc-sec services"><h4>😊 其他搬家服務</h4><ul>${C.otherServices.map(t => `<li class="dot">${esc(t)}</li>`).join('')}</ul></div>
@@ -457,7 +457,7 @@
      ========================================================= */
   let step = 1;
   const NEXT_TEXT = { 1: '下一步：選日期', 2: '看報價單', 3: '留聯絡方式並獲取正式估價單', 4: '送出並加 LINE' };
-  const nextText = n => mode === 'move' ? NEXT_TEXT[n] : ({ 1: '下一步：選日期', 2: '看估價單', 3: '留聯絡方式', 4: '送出到小丞 LINE' })[n];
+  const nextText = n => mode === 'move' ? NEXT_TEXT[n] : ({ 1: '下一步：選日期', 2: '看估價單', 3: '留聯絡方式', 4: '送出估價' })[n];
   const sid = n => mode === 'move' ? 's' + n : (n === 1 ? 's1c' : n === 3 ? 's3c' : 's' + n);
   function showStep(n) {
     step = n;
@@ -521,7 +521,7 @@
     };
   }
 
-  // 官方帳號傳給小丞的訊息（正式版由 Cloudflare 傳；測試版顯示在畫面上）
+  // 官方帳號傳給老闆的訊息（正式版由 Cloudflare 傳；測試版顯示在畫面上）
   function notifyText(b) {
     const j = b.job;
     const fl = f => f === 'elev' ? '電梯' : f + '樓';
@@ -547,7 +547,7 @@
   function customerText(b) {
     const j = b.job;
     return [
-      `小丞你好，我是${b.name}，在官網估價：`,
+      `你好，我是${b.name}，在官網估價：`,
       `希望 ${dateText(b.date)} ${b.slotLabel}`,
       `${j.fromCity}${j.fromDist} → ${j.toCity}${j.toDist}，${j.loadLabel}`,
       `估價 ${b.quote.shown}`,
@@ -587,7 +587,7 @@
       showStep('done'); window.scrollTo(0, 0);
     } catch (ex) {
       console.error(ex);
-      err.innerHTML = `送出失敗，請直接 <a href="${esc(B.lineUrl)}" target="_blank" rel="noopener">LINE 小丞</a>，抱歉！`;
+      err.innerHTML = `送出失敗，請直接 <a href="${esc(B.lineUrl)}" target="_blank" rel="noopener">LINE 聯絡我們</a>，抱歉！`;
       err.classList.remove('hide');
     } finally { btn.disabled = false; if (step === 4) btn.textContent = NEXT_TEXT[4]; }
   }
@@ -598,13 +598,13 @@
   $('#copyMine').onclick = async () => {
     if (mode !== 'move' ? !lastClearText : !lastBooking) return;
     const t = mode !== 'move' ? lastClearText : customerText(lastBooking);
-    try { await navigator.clipboard.writeText(t); toast('已複製，貼到 LINE 傳給小丞'); }
+    try { await navigator.clipboard.writeText(t); toast('已複製，貼到 LINE 傳給我們'); }
     catch { toast('複製失敗，請直接加 LINE 傳訊息'); }
   };
 
   /* =========================================================
      清運／清潔：跟搬家同一套 4 步驟（內容 → 日期時段 → 估價單 → 聯絡方式）
-     送出時用手機分享選單，把文字和照片一起傳到小丞 LINE
+     送出時用手機分享選單，把文字和照片一起傳到老闆 LINE
      ========================================================= */
   const SVC_NAME = { move: '搬家', haul: '家具／雜物清運', clean: '清潔（打掃）' };
   function pickSvc(k) {
@@ -614,14 +614,14 @@
     labels[0].textContent = k === 'move' ? '搬家內容' : k === 'clean' ? '清潔內容' : '清運內容';
     labels[2].textContent = isC ? '估價單' : '報價單';
     $('#dateTitle').textContent = k === 'move' ? '希望哪一天搬？' : k === 'clean' ? '希望哪一天清潔？' : '希望哪一天清運？';
-    $('#s4Title').textContent = isC ? '留下聯絡方式，傳給小丞估價' : '留下聯絡方式，取得正式報價單';
-    $('#s4Hint').innerHTML = isC ? '按「送出」後，小丞會直接收到你填的資料和照片，看過後會在 LINE 回你價格。' : '剛剛的是預估報價。送出後會打開 LINE，加小丞好友，小丞確認細節後會傳<b>正式報價單</b>給你，並跟你約時間。';
+    $('#s4Title').textContent = isC ? '留下聯絡方式，送出估價' : '留下聯絡方式，取得正式報價單';
+    $('#s4Hint').innerHTML = isC ? '按「送出」後，我們會直接收到你填的資料和照片，看過後會在 LINE 回你價格。' : '剛剛的是預估報價。送出後會打開 LINE，加我們好友，確認細節後會傳<b>正式報價單</b>給你，並跟你約時間。';
     if (isC) {
       const c = k === 'clean';
       $('#cItems').placeholder = c ? '例如：廚房油垢比較多、有寵物毛、想順便清冷氣' : '例如：舊沙發 1 張、床墊 2 個、衣櫃 1 組、雜物約 10 袋';
       $('#cItemsT').textContent = c ? '📸 室內照片或影片' : '要清的東西';
       $('#cItemsL').textContent = c ? '有特別髒、特別在意的地方嗎？（選填）' : '大概有什麼、多少？（有重物、大型家具也請寫）';
-      $('#cPhotoL').textContent = c ? '拍幾張室內照片，小丞更能掌握現場，估得更準（最多 9 張）' : '拍照（可以一次選多張，最多 9 張）';
+      $('#cPhotoL').textContent = c ? '拍幾張室內照片，我們更能掌握現場，估得更準（最多 9 張）' : '拍照（可以一次選多張，最多 9 張）';
       $('#cAddrL').textContent = c ? '寫到區域或路名就可以（例如：台中市西屯區台灣大道三段）' : '地址（縣市區路名門牌，沒有門牌寫到路名）';
       $('#cLocT').textContent = c ? '② 清潔地址／區域' : '清運位置';
     }
@@ -720,10 +720,10 @@
     ];
   }
   function renderClearCard() {
-    $('#qcardC').innerHTML = `<h3 class="qc-title">${esc(SVC_NAME[mode])}估價單（待小丞回覆）</h3>
+    $('#qcardC').innerHTML = `<h3 class="qc-title">${esc(SVC_NAME[mode])}估價單（等我們回覆）</h3>
       <div class="qc-sec"><h4>📋 你填的內容</h4><ul>${clearLines().map(([k, v]) => `<li class="dot"><b>${esc(k)}：</b>${esc(v)}</li>`).join('')}</ul></div>
       ${cFiles.length ? `<div class="thumbs">${cFiles.map(f => `<div class="th"><img src="${URL.createObjectURL(f)}" alt=""></div>`).join('')}</div>` : ''}
-      <div class="qc-sec"><h4>💰 費用</h4><p>${mode === 'clean' ? '清潔' : '清運'}要看現場和物品才能報價，小丞看過你送出的照片與資料後，會在 LINE 回你價格。</p></div>`;
+      <div class="qc-sec"><h4>💰 費用</h4><p>${mode === 'clean' ? '清潔' : '清運'}要看現場和物品才能報價，我們看過你送出的照片與資料後，會在 LINE 回你價格。</p></div>`;
   }
   async function clearSubmit() {
     const err = $('#bError'); err.classList.add('hide');
@@ -768,12 +768,12 @@
       if (cFiles.length && navigator.canShare && navigator.canShare({ files: cFiles })) data.files = cFiles;
       let shared = false;
       try { if (navigator.share) { await navigator.share(data); shared = true; } } catch (x) { if (x && x.name === 'AbortError') return; }
-      if (!shared) { toast('文字已複製，貼到小丞的 LINE（照片請另外傳）'); window.open(B.lineUrl, '_blank', 'noopener'); }
+      if (!shared) { toast('文字已複製，貼到我們的 LINE（照片請另外傳）'); window.open(B.lineUrl, '_blank', 'noopener'); }
     }
     $('#notifyPreview').classList.toggle('hide', !DEMO);
     $('#notifyText').textContent = text;
     $('#sharePhotos').classList.toggle('hide', !(cFiles.length && photoFail));
-    $('#doneTitle').textContent = sent ? '✓ 已通知小丞！' : '✓ 請把資料傳給小丞';
+    $('#doneTitle').textContent = sent ? '✓ 已送出，我們收到了！' : '✓ 請把資料傳給我們';
     showStep('done'); window.scrollTo(0, 0);
   }
   $('#sharePhotos').onclick = async () => {

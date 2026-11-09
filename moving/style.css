@@ -277,7 +277,7 @@ input[type=checkbox]{width:22px;height:22px;min-height:0;margin:1px 0 0;accent-c
 .hero-pts li{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 12px;font-size:14px;font-weight:700}
 .hero-pts li::before{content:"✓ ";color:var(--yellow)}
 
-/* 報價單（照小丞給客人的報價文案） */
+/* 報價單（照老闆給客人的報價文案） */
 .qcard{background:var(--white);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(15,39,71,.08)}
 .qc-head{background:var(--navy);color:var(--white);padding:16px 18px;display:flex;align-items:center;gap:12px}
 .qc-head img{width:44px;height:44px;border-radius:50%;background:var(--white)}

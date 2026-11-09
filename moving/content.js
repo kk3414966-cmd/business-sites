@@ -18,7 +18,7 @@ window.SITE = {
   brand: {
     name: '搬家專車',
     slogan: '用心・細心・安心',
-    owner: '小丞',
+    owner: '老闆',
     phone: '0931-902-272',
     lineUrl: 'https://line.me/ti/p/MuLcAJz9iR',         // 個人 LINE（客人加這個）
     googleMapsUrl: 'https://maps.app.goo.gl/47276easgVTWjBdv8',
@@ -99,7 +99,7 @@ window.SITE = {
   // 「你從哪裡知道我們？」
   sources: ['FB 廣告', 'Google 地圖', '朋友介紹', '舊客', '粉專', '其他'],
 
-  // ---- 報價單文字（照小丞給客人的報價文案）----
+  // ---- 報價單文字（照老闆給客人的報價文案）----
   quoteCopy: {
     includes: {
       '3': ['車輛運送', '舊家＋新家搬運', '基本家具保護', '物品定位'],
