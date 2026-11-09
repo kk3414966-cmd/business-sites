@@ -93,7 +93,7 @@ function renderCust(){
   +'<button class="btn sec noprint" id="prt">下載留底（存成 PDF）</button><button class="btn sec noprint" id="copy">複製報價單文字</button><div class="muted" id="cmsg"></div></section>';
   var pp=q.pay||{};
   h+='<section style="border:2px solid #1F3A5F"><h2>付款資訊</h2><div class="muted">請先轉帳訂金，我們收到後會跟您聯絡確認。</div><div class="sp"><span class="muted">訂金（總金額的 10%）</span><span class="big" style="font-size:26px">'+fm(q.dep)+'</span></div>'
-  +(pp.acct?'<div class="box"><b>'+esc(pp.bank)+'</b><br>帳號：<b id="acctTxt">'+esc(pp.acct)+'</b><br>戶名：'+esc(pp.holder)+'</div><button class="btn sm sec" id="copyAcct">複製帳號</button><div class="muted" id="amsg"></div>':'<div class="box hint">老闆還沒設定收款帳號（請先在老闆 APP 清單最上面填）。</div>')
+  +(pp.acct?'<div class="box"><b>'+esc(pp.bank)+'</b><br>帳號：<b id="acctTxt">'+esc(pp.acct)+'</b><br>戶名：'+esc(pp.holder)+'</div><button class="btn sm sec" id="copyAcct">複製帳號</button><div class="muted" id="amsg"></div><div class="box" style="margin-top:8px"><b>匯款後</b>，再麻煩您<b>截圖傳 LINE 告訴我們一聲</b>，我們收到後會跟您確認，謝謝！</div>':'<div class="box hint">老闆還沒設定收款帳號（請先在老闆 APP 清單最上面填）。</div>')
   +'<div class="muted">尾款在完工後付清，現金或轉帳都可以。</div></section>';
   APP.innerHTML=h; $('copy').onclick=function(){copyQuote(q)}; if($('prt')) $('prt').onclick=function(){ try{window.print()}catch(e){} };
   if($('copyAcct')) $('copyAcct').onclick=function(){ var m=$('amsg'); try{ navigator.clipboard.writeText(pp.acct).then(function(){m.textContent='已複製帳號'},function(){m.textContent='這裡無法複製，請手動選取。'}); }catch(e){ m.textContent='這裡無法複製，請手動選取。'; } };
