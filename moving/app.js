@@ -107,6 +107,11 @@
     } catch (e) { /* 還沒有後台內容，先用示範內容 */ }
   }
 
+  // 貼文分類（依內容關鍵字自動判斷，優先順序由上到下）
+  const CATS = [['清運', /清運|垃圾|回收|廢棄|二手/], ['清潔', /清潔/], ['倉儲', /倉庫|倉儲|存放|儲存/], ['企業', /企業|公司行號|合作廠商|辦公室/]];
+  const catOf = t => { for (const [n, re] of CATS) if (re.test(t)) return n; return '搬家'; };
+  let galCat = '全部';
+
   // 粉專同步：影片＋搬家貼文直接從粉專來（失敗就維持原本內容）
   async function loadFeed() {
     if (!S.feedUrl) return;
@@ -116,8 +121,8 @@
       if (!j.ok) return;
       const img = x => S.feedUrl + '/img/' + x.id;
       const head = t => String(t).split('\n')[0].replace(/^[^\u4e00-\u9fa5A-Za-z0-9【]+/, '').slice(0, 40);
-      if ((j.videos || []).length) S.videos = j.videos.map(x => ({ img: img(x), title: head(x.text), url: x.url }));
-      if ((j.cases || []).length) S.cases = j.cases.map(x => ({ img: img(x), post: x.text, url: x.url }));
+      if ((j.videos || []).length) S.videos = j.videos.map(x => ({ img: img(x), title: head(x.text), url: x.url, cat: catOf(x.text) }));
+      if ((j.cases || []).length) S.cases = j.cases.map(x => ({ img: img(x), post: x.text, url: x.url, cat: catOf(x.text) }));
       fromCms = true;
       renderContent();
     } catch (e) { /* 連不到粉專就用原本的 */ }
@@ -134,17 +139,24 @@
     const postParts = c => { const L = String(c.post || '').trim().split(/\n+/); return { t: L[0] || '', b: L.slice(1).join('\n') }; };
     const caseTitle = c => c.post ? postParts(c).t : (c.from ? c.from + ' → ' + c.to : c.to);
     const caseTags = c => [c.type, c.floors, c.trucks, c.hours].filter(Boolean);
-    $('#reelsAll').innerHTML = S.videos.length ? reelsHTML(S.videos) : '<div class="empty">影片準備中。</div>';
-    $('#casesAll').innerHTML = S.cases.map(c => `<article class="case">
+    // 分類按鈕（只有粉專同步來的內容才有分類）
+    const cats = ['全部', ...['搬家', '清運', '清潔', '倉儲', '企業'].filter(n => S.videos.concat(S.cases).some(x => x.cat === n))];
+    if (!cats.includes(galCat)) galCat = '全部';
+    const inCat = x => galCat === '全部' || !x.cat || x.cat === galCat;
+    $('#galCats').classList.toggle('hide', cats.length < 3);
+    $('#galCats').innerHTML = cats.map(n => `<button type="button" class="cat${n === galCat ? ' on' : ''}" data-cat="${n}">${n}</button>`).join('');
+    const vList = S.videos.filter(inCat), cList = S.cases.filter(inCat);
+    $('#reelsAll').innerHTML = vList.length ? reelsHTML(vList) : '<div class="empty">這類影片準備中。</div>';
+    $('#casesAll').innerHTML = cList.map(c => `<article class="case">
         <img src="${esc(pic(c.img))}" alt="${esc(caseTitle(c))}" loading="lazy" style="object-position:${esc(c.pos || 'center')}">
         <div class="case-b">
           <div class="route">${c.post ? esc(caseTitle(c)) : (c.from ? esc(c.from) + '<span aria-hidden="true">→</span>' : '') + esc(c.to)}${fromCms ? '' : '<em class="badge">示範</em>'}</div>
           <div class="tags">${caseTags(c).map(t => `<span>${esc(t)}</span>`).join('')}</div>
           <p style="white-space:pre-line">${esc(c.post ? postParts(c).b : c.text)}</p>${c.url ? `<a class="case-more" href="${esc(c.url)}" target="_blank" rel="noopener">到粉專看原文 →</a>` : ''}
-        </div></article>`).join('') || '<div class="empty">案例準備中。</div>';
+        </div></article>`).join('') || '<div class="empty">這類案例準備中。</div>';
 
-    $('#casesTitle').classList.toggle('hide', !S.cases.length);
-    $('#casesAll').classList.toggle('hide', !S.cases.length);
+    $('#casesTitle').classList.toggle('hide', !cList.length);
+    $('#casesAll').classList.toggle('hide', !cList.length);
 
     // 首頁：一支主打影片＋兩個案例，簡單乾淨
     const fv = S.videos[0], fc = S.cases.slice(0, 2);
@@ -172,6 +184,7 @@
       + (used.length ? `<div class="cards">${used.map(u => `<div class="card used${u.sold ? ' sold' : ''}">${u.img ? `<div class="u-img"><img src="${esc(pic(u.img))}" alt="${esc(u.title)}" loading="lazy">${u.sold ? '<span class="sold-tag">已售出</span>' : ''}</div>` : ''}<b>${esc(u.title)}</b><p class="hint">${esc(u.text)}</p>${u.price ? `<b class="num price">${money(u.price)}</b>` : ''}</div>`).join('')}</div>` : '');
   }
   renderContent();
+  $('#galCats').addEventListener('click', e => { const b = e.target.closest('[data-cat]'); if (b) { galCat = b.dataset.cat; renderContent(); } });
   loadCms().then(loadFeed);
 
   $('#faqList').innerHTML = S.faq.map(f => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('');
