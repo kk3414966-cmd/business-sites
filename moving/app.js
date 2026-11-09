@@ -574,6 +574,7 @@
       lastBooking = b;
       $('#notifyText').textContent = notifyText(b);
       $('#notifyPreview').classList.toggle('hide', !DEMO);
+      $('#doneTitle').textContent = '✓ 收到了！最後一步：'; $('#sharePhotos').classList.add('hide');
       showStep('done'); window.scrollTo(0, 0);
     } catch (ex) {
       console.error(ex);
@@ -676,17 +677,50 @@
     lines.push(`稱呼：${$('#name').value.trim()}　電話：${$('#phone').value.trim()}`);
     if ($('#lineName').value.trim()) lines.push(`LINE 名稱：${$('#lineName').value.trim()}`);
     if ($('#note').value.trim()) lines.push(`附註：${$('#note').value.trim()}`);
-    const text = `【搬家專車 線上估價】\n` + lines.join('\n');
+    const text = `【搬家專車 線上估價】${SVC_NAME[mode]}\n` + lines.join('\n') + (cFiles.length ? '\n（照片客人會另外在 LINE 傳給你）' : '');
     lastClearText = text;
-    try { await navigator.clipboard.writeText(text); } catch (x) { /* 沒權限就算了 */ }
-    const data = { text, title: '清運／清潔估價' };
-    if (cFiles.length && navigator.canShare && navigator.canShare({ files: cFiles })) data.files = cFiles;
-    let shared = false;
-    try { if (navigator.share) { await navigator.share(data); shared = true; } }
-    catch (x) { if (x && x.name === 'AbortError') return; }
-    if (!shared) { toast('文字已複製，貼到小丞的 LINE（照片請另外傳）'); window.open(B.lineUrl, '_blank', 'noopener'); }
-    $('#notifyPreview').classList.add('hide'); showStep('done'); window.scrollTo(0, 0);
+    const btn = $('#nextBtn'); btn.disabled = true; btn.textContent = '送出中…';
+    const slot = S.slots.find(x => x.id === selSlot);
+    let sent = false;
+    try {
+      if (DEMO) { await new Promise(r => setTimeout(r, 400)); console.log('測試版，沒有真的送出：', text); sent = true; }
+      else {
+        const r = await fetch(S.bookingUrl.replace(/\/$/, '') + '/booking', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            business: S.business, status: 'new', createdAt: new Date().toISOString(),
+            name: $('#name').value.trim(), phone: $('#phone').value.trim(), lineName: $('#lineName').value.trim(),
+            heard: $('#heard').value, src: params.get('src') || '', fromAddr: $('#cAddr').value.trim(), toAddr: '', note: $('#note').value.trim(),
+            date: selDate, slot: selSlot, slotLabel: slotText(), hour: slotHour(), hours: 2, code: '',
+            job: { kind: mode, svc: SVC_NAME[mode], floor: floorText(), route: $('#cRoute').value.trim(), items: $('#cItems').value.trim(), photos: cFiles.length },
+            text, website: $('#website').value,
+          }),
+        });
+        if (!r.ok) throw new Error('booking ' + r.status + ' ' + (await r.text()).slice(0, 200));
+        sent = true;
+      }
+    } catch (x) { console.error(x); }
+    btn.disabled = false; btn.textContent = nextText(4);
+    if (!sent) { // 官方帳號送失敗：改用分享選單／複製，讓客人自己傳
+      try { await navigator.clipboard.writeText(text); } catch (x) { /* 沒權限就算了 */ }
+      const data = { text, title: '清運／清潔估價' };
+      if (cFiles.length && navigator.canShare && navigator.canShare({ files: cFiles })) data.files = cFiles;
+      let shared = false;
+      try { if (navigator.share) { await navigator.share(data); shared = true; } } catch (x) { if (x && x.name === 'AbortError') return; }
+      if (!shared) { toast('文字已複製，貼到小丞的 LINE（照片請另外傳）'); window.open(B.lineUrl, '_blank', 'noopener'); }
+    }
+    $('#notifyPreview').classList.toggle('hide', !DEMO);
+    $('#notifyText').textContent = text;
+    $('#sharePhotos').classList.toggle('hide', !cFiles.length);
+    $('#doneTitle').textContent = sent ? '✓ 已通知小丞！' : '✓ 請把資料傳給小丞';
+    showStep('done'); window.scrollTo(0, 0);
   }
+  $('#sharePhotos').onclick = async () => {
+    try {
+      if (navigator.canShare && navigator.canShare({ files: cFiles })) await navigator.share({ files: cFiles, title: '清運／清潔照片' });
+      else { toast('這支手機不能一次分享照片，請直接在 LINE 傳'); window.open(B.lineUrl, '_blank', 'noopener'); }
+    } catch (x) { /* 取消分享 */ }
+  };
 
   /* ---------- 開始 ---------- */
   showStep(1);
