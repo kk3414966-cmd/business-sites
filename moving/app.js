@@ -115,14 +115,16 @@
       const inner = `<img src="${esc(pic(v.img))}" alt="" loading="lazy" style="object-position:${esc(v.pos || 'center')}"><span class="play" aria-hidden="true"></span>${demoBadge}<span class="cap">${esc(v.title)}</span>`;
       return v.url ? `<a class="reel" href="${esc(v.url)}" target="_blank" rel="noopener" aria-label="${esc(v.title)}">${inner}</a>` : `<div class="reel">${inner}</div>`;
     }).join('');
+    const postParts = c => { const L = String(c.post || '').trim().split(/\n+/); return { t: L[0] || '', b: L.slice(1).join('\n') }; };
+    const caseTitle = c => c.post ? postParts(c).t : (c.from ? c.from + ' → ' + c.to : c.to);
     const caseTags = c => [c.type, c.floors, c.trucks, c.hours].filter(Boolean);
     $('#reelsAll').innerHTML = S.videos.length ? reelsHTML(S.videos) : '<div class="empty">影片準備中。</div>';
     $('#casesAll').innerHTML = S.cases.map(c => `<article class="case">
-        <img src="${esc(pic(c.img))}" alt="${esc(c.from ? c.from + "搬到" + c.to : c.to)}" loading="lazy" style="object-position:${esc(c.pos || 'center')}">
+        <img src="${esc(pic(c.img))}" alt="${esc(caseTitle(c))}" loading="lazy" style="object-position:${esc(c.pos || 'center')}">
         <div class="case-b">
-          <div class="route">${c.from ? esc(c.from) + '<span aria-hidden="true">→</span>' : ''}${esc(c.to)}${fromCms ? '' : '<em class="badge">示範</em>'}</div>
+          <div class="route">${c.post ? esc(caseTitle(c)) : (c.from ? esc(c.from) + '<span aria-hidden="true">→</span>' : '') + esc(c.to)}${fromCms ? '' : '<em class="badge">示範</em>'}</div>
           <div class="tags">${caseTags(c).map(t => `<span>${esc(t)}</span>`).join('')}</div>
-          <p>${esc(c.text)}</p>
+          <p style="white-space:pre-line">${esc(c.post ? postParts(c).b : c.text)}</p>
         </div></article>`).join('') || '<div class="empty">案例準備中。</div>';
 
     // 首頁：一支主打影片＋兩個案例，簡單乾淨
@@ -136,7 +138,7 @@
       <div class="f-side">${fc.map(c => `
         <a class="f-case" href="#gallery" data-go="gallery">
           <img src="${esc(pic(c.img))}" alt="" loading="lazy" style="object-position:${esc(c.pos || 'center')}">
-          <span class="f-txt"><b>${esc(c.from ? c.from + ' → ' + c.to : c.to)}</b><small>${esc(caseTags(c).slice(0, 3).join('・'))}</small></span>
+          <span class="f-txt"><b>${esc(caseTitle(c))}</b><small>${esc(c.post ? '' : caseTags(c).slice(0, 3).join('・'))}</small></span>
         </a>`).join('')}
         <a class="btn btn-n f-more" href="#gallery" data-go="gallery">看更多搬家實錄 →</a>
       </div>`;
