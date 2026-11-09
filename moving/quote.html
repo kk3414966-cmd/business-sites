@@ -141,6 +141,7 @@ function copyQuote(q){
 async function submitConfirm(patch){
   if(DEMO) return;
   await updateDoc(REF, patch);
+  try{ fetch('https://moving-booking.kk3414966.workers.dev/quote-confirmed',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:REF.id})}).catch(function(){}); }catch(e){}
 }
 async function load(){
   var p=new URLSearchParams(location.search), t=p.get('t')||'';
