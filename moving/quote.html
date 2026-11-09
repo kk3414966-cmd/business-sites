@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>正式報價單｜小丞台中搬家</title>
+<title>正式報價單｜搬家專車</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 
@@ -77,7 +77,7 @@ function renderCust(){
  if(!q){ APP.innerHTML='<section><h2>客人畫面</h2><div class="muted">請先在「老闆 APP」開一張報價單，再按清單裡的「模擬客人打開」。</div><button class="btn" id="goA">回老闆 APP</button></section>'; $('goA').onclick=function(){setView('app')}; return; }
  if(q.status==='作廢'){ APP.innerHTML='<section><h1>此報價單已作廢</h1><div class="muted">如有疑問，請在 LINE 聯絡我們。</div></section>'; return; }
  var done=q.status==='已確認', need=q.total>CURLIM;
- var h='<section style="background:#1F3A5F;color:#fff;margin:0;border-radius:0"><div style="color:#F2B705;font-size:13px;font-weight:700">小丞台中搬家</div><h1 style="color:#fff">正式報價單</h1><div style="font-size:13px;opacity:.85">'+(q.no?'單號 '+esc(q.no):'')+(DEMO?'（範例資料）':'')+'</div></section>';
+ var h='<section style="background:#1F3A5F;color:#fff;margin:0;border-radius:0"><div style="display:flex;align-items:center;gap:10px"><img src="images/logo.png" alt="搬家專車 LOGO" width="44" height="44" style="border-radius:8px;background:#fff"><div style="color:#F2B705;font-size:16px;font-weight:700">搬家專車</div></div><h1 style="color:#fff">正式報價單</h1><div style="font-size:13px;opacity:.85">'+(q.no?'單號 '+esc(q.no):'')+(DEMO?'（範例資料）':'')+'</div></section>';
  h+='<section><h2>搬家資料</h2><div class="box"><b>'+esc(q.name)+'</b><br>'+esc(q.date)+'<br>舊址：'+esc(q.from)+'<br>新址：'+esc(q.to)+'</div></section>';
  h+='<section><h2>服務項目</h2>'+q.items.map(function(i){return '<div class="row" style="align-items:flex-start"><span style="color:#15803D;font-weight:700">✓</span><div style="flex:1">'+esc(i.name)+(i.sub?'<div class="muted">'+esc(i.sub)+'</div>':'')+'</div><b style="white-space:nowrap">'+fm(i.amt)+'</b></div>'}).join('');
  (q.boxes||[]).forEach(function(bx){ h+='<div class="box"><b style="color:#1F3A5F">'+bx.t+'</b><br>'+bx.h+'</div>'; });
