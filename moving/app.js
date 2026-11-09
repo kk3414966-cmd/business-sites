@@ -143,8 +143,9 @@
     if (S.hero) $('.hero-img').style.backgroundImage = `url("${pic(S.hero)}")`;
     // 手機版：依主圖本身的長寬比顯示，橫幅上的字才不會被左右裁掉
     const reelsHTML = list => list.map(v => {
-      const inner = `<img src="${esc(pic(v.img))}" alt="" loading="lazy" style="object-position:${esc(v.pos || 'center')}"><span class="play" aria-hidden="true"></span>${demoBadge}<span class="cap">${esc(v.title)}</span>`;
-      return v.url ? `<a class="reel" href="${esc(v.url)}" target="_blank" rel="noopener" aria-label="${esc(v.title)}">${inner}</a>` : `<div class="reel">${inner}</div>`;
+      const inner = `<img src="${esc(pic(v.img))}" alt="" loading="lazy"><span class="play" aria-hidden="true"></span>${demoBadge}<span class="cap">${esc(v.title)}</span>`;
+      const bg = `style="--bg:url('${esc(pic(v.img))}')"`;
+      return v.url ? `<a class="reel" ${bg} href="${esc(v.url)}" target="_blank" rel="noopener" aria-label="${esc(v.title)}">${inner}</a>` : `<div class="reel" ${bg}>${inner}</div>`;
     }).join('');
     const postParts = c => { const L = String(c.post || '').trim().split(/\n+/); return { t: L[0] || '', b: L.slice(1).join('\n') }; };
     const caseTitle = c => c.post ? postParts(c).t : (c.from ? c.from + ' → ' + c.to : c.to);
@@ -158,7 +159,7 @@
     const vList = S.videos.filter(inCat), cList = S.cases.filter(inCat);
     $('#reelsAll').innerHTML = vList.length ? reelsHTML(vList) : '<div class="empty">這類影片準備中。</div>';
     $('#casesAll').innerHTML = cList.map(c => `<article class="case">
-        <img src="${esc(pic(c.img))}" alt="${esc(caseTitle(c))}" loading="lazy" style="object-position:${esc(c.pos || 'center')}">
+        <div class="frame" style="--bg:url('${esc(pic(c.img))}')"><img src="${esc(pic(c.img))}" alt="${esc(caseTitle(c))}" loading="lazy"></div>
         <div class="case-b">
           <div class="route">${c.post ? esc(caseTitle(c)) : (c.from ? esc(c.from) + '<span aria-hidden="true">→</span>' : '') + esc(c.to)}${fromCms ? '' : '<em class="badge">示範</em>'}</div>
           <div class="tags">${caseTags(c).map(t => `<span>${esc(t)}</span>`).join('')}</div>
@@ -173,7 +174,7 @@
     $('#featureHome').innerHTML = (fv.length ? `<div class="reels">${reelsHTML(fv)}</div>` : '') +
       (fc.length ? `<div class="f-cases">${fc.map(c => `
         <a class="f-case" href="#gallery" data-go="gallery">
-          <img src="${esc(pic(c.img))}" alt="" loading="lazy" style="object-position:${esc(c.pos || 'center')}">
+          <span class="frame" style="--bg:url('${esc(pic(c.img))}')"><img src="${esc(pic(c.img))}" alt="" loading="lazy"></span>
           <span class="f-txt"><b>${esc(caseTitle(c))}</b><small>${esc(c.post ? '' : caseTags(c).slice(0, 3).join('・'))}</small></span>
         </a>`).join('')}</div>` : '') +
       `<a class="btn btn-n f-more" href="#gallery" data-go="gallery">看更多搬家實錄 →</a>`;

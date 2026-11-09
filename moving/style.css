@@ -376,3 +376,14 @@ footer b{color:var(--white)}
 .feature .reels{margin-bottom:14px}
 .f-cases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
 @media(max-width:760px){.f-cases{grid-template-columns:1fr}}
+
+/* 統一外框：不論封面風格，一律固定比例＋同款模糊底＋同款邊框 */
+.frame{position:relative;display:block;overflow:hidden;background:var(--navy);isolation:isolate}
+.frame::before,.reel::before{content:"";position:absolute;inset:-12%;background:var(--bg) center/cover;filter:blur(18px) brightness(.7);z-index:-1}
+.frame img{position:relative;width:100%;height:100%;object-fit:contain;display:block}
+.case .frame{aspect-ratio:4/3;border-bottom:3px solid var(--yellow)}
+.case img{aspect-ratio:auto;height:100%;background:transparent}
+.f-case .frame{width:110px;height:82px;border-radius:10px;border:2px solid var(--navy)}
+.f-case img{width:100%;height:100%;border-radius:0}
+.reel{border:3px solid var(--navy);box-shadow:0 0 0 2px var(--yellow);isolation:isolate;background:var(--navy)}
+.reel img{position:relative;object-fit:contain;background:transparent}
