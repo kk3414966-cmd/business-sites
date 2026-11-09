@@ -149,6 +149,7 @@ img{max-width:100%}
 .vol{margin-top:14px;background:var(--paper);border-radius:12px;padding:12px 14px}
 .vol-head{display:flex;justify-content:space-between;align-items:baseline;font-size:15px}
 .vol-head b{font-family:var(--f-num);font-size:26px;color:var(--navy)}
+.vol-sub{margin:2px 0 0;font-size:13px;color:var(--muted);text-align:right}
 .vol-bar{position:relative;height:16px;border-radius:999px;background:#e3e8ef;margin:8px 0 22px}
 .vol-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--ok);transition:width .2s}
 .vol-bar i.more{background:var(--warn)}
@@ -357,3 +358,6 @@ footer b{color:var(--white)}
 .svc-pad{padding-bottom:0}.svc-pad .card{margin-top:12px}
 #svcPick,#cSvc{display:flex;flex-wrap:wrap;gap:8px}
 #qcardC{padding:18px 16px}#qcardC .qc-title{font-size:20px;margin:0 0 10px}#qcardC .thumbs{margin:8px 0 14px}
+
+.size-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.size-grid .f select{padding-left:8px;padding-right:2px}

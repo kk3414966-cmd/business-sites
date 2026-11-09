@@ -357,17 +357,25 @@
   const volPct = () => Q.itemsPercent(bigItems, S.bigItemTypes, P);
   const volAdvice = () => Q.loadAdvice(volPct(), radio('load'), P);
   const loadLabel = id => (P.loads.find(l => l.id === id) || {}).label;
+  // 客人選的車能裝多少「台平車」：半車 0.5、一車 1、兩車 2、三車 3、不確定 → 以一車算
+  const loadTrucks = () => { const l = P.loads.find(x => x.id === radio('load')); return !l ? 1 : l.rangeOf ? 1 : l.id === 'half' ? 0.5 : l.trucks; };
   function renderVol() {
     const pct = volPct();
     $('#volBox').classList.toggle('hide', !bigItems.length);
     if (!bigItems.length) return;
     const adv = volAdvice();
-    $('#volPct').textContent = `約 ${pct}%`;
-    $('#volFill').style.width = Math.min(100, pct / 1.2) + '%';
-    $('#volFill').className = pct > P.truck.maxPct ? 'more' : 'ok';
+    const cap = loadTrucks();
+    const use = Math.round(pct / cap);            // 佔「你選的車」的百分比
+
+    const lab = loadLabel(radio('load')) || '一車';
+    $('#volHead').textContent = radio('load') === 'unknown' ? '這些東西大約佔一台平車' : `這些東西大約佔你選的「${lab}」`;
+    $('#volPct').textContent = `約 ${use}%`;
+    $('#volSub').textContent = cap === 1 ? '' : pct >= 10 ? `（相當於 ${(pct / 100).toFixed(1)} 台平車的量）` : `（約一台平車的 ${Math.round(pct)}%）`;
+    $('#volFill').style.width = Math.min(100, use / 1.2) + '%';
+    $('#volFill').className = use > P.truck.maxPct ? 'more' : 'ok';
     const msg = $('#volMsg');
     msg.className = 'vol-msg ' + adv.level;
-    msg.textContent = adv.level === 'ok' ? `選「${loadLabel(radio('load'))}」放得下，紙箱雜物也要算進去喔。`
+    msg.textContent = adv.level === 'ok' ? `選「${lab}」放得下，紙箱雜物也要算進去喔。`
       : `東西有點多，建議選「${loadLabel(adv.suggest)}」，疊太滿容易壓壞東西。`;
     $('#raiseMsg').classList.toggle('hide', !Q.needsRaise(bigItems, S.bigItemTypes, P));
   }
@@ -563,18 +571,19 @@
 
     const btn = $('#nextBtn'); btn.disabled = true; btn.textContent = '送出中…';
     try {
+      const photoTxt = await uploadPhotos();
       if (DEMO) { await new Promise(r => setTimeout(r, 400)); console.log('測試版，沒有真的送出：', b); }
       else {
         const r = await fetch(S.bookingUrl.replace(/\/$/, '') + '/booking', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...b, text: notifyText(b), website: $('#website').value }),
+          body: JSON.stringify({ ...b, text: notifyText(b) + photoTxt, website: $('#website').value }),
         });
         if (!r.ok) throw new Error('booking ' + r.status + ' ' + (await r.text()).slice(0, 200));
       }
       lastBooking = b;
-      $('#notifyText').textContent = notifyText(b);
+      $('#notifyText').textContent = notifyText(b) + photoTxt;
       $('#notifyPreview').classList.toggle('hide', !DEMO);
-      $('#doneTitle').textContent = '✓ 收到了！最後一步：'; $('#sharePhotos').classList.add('hide');
+      $('#doneTitle').textContent = '✓ 收到了！最後一步：'; $('#sharePhotos').classList.toggle('hide', !(cFiles.length && photoFail));
       showStep('done'); window.scrollTo(0, 0);
     } catch (ex) {
       console.error(ex);
@@ -606,19 +615,25 @@
     labels[2].textContent = isC ? '估價單' : '報價單';
     $('#dateTitle').textContent = k === 'move' ? '希望哪一天搬？' : k === 'clean' ? '希望哪一天清潔？' : '希望哪一天清運？';
     $('#s4Title').textContent = isC ? '留下聯絡方式，傳給小丞估價' : '留下聯絡方式，取得正式報價單';
-    $('#s4Hint').innerHTML = isC ? '按「送出」後手機會跳出分享選單，選 <b>LINE</b> 再選小丞，文字和照片就一起傳過去，小丞看過後回你價格。' : '剛剛的是預估報價。送出後會打開 LINE，加小丞好友，小丞確認細節後會傳<b>正式報價單</b>給你，並跟你約時間。';
+    $('#s4Hint').innerHTML = isC ? '按「送出」後，小丞會直接收到你填的資料和照片，看過後會在 LINE 回你價格。' : '剛剛的是預估報價。送出後會打開 LINE，加小丞好友，小丞確認細節後會傳<b>正式報價單</b>給你，並跟你約時間。';
     if (isC) {
       const c = k === 'clean';
-      $('#cLocT').textContent = c ? '清潔位置' : '清運位置';
-      $('#cItemsT').textContent = c ? '要清潔的地方' : '要清的東西';
-      $('#cItemsL').textContent = c ? '幾房幾廳幾坪？哪些地方要打掃（廚房、浴室、陽台…）？有什麼特別髒的？' : '大概有什麼、多少？（有重物、大型家具也請寫）';
-      $('#cItems').placeholder = c ? '例如：3 房 2 廳約 30 坪，廚房油垢多、2 間浴室' : '例如：舊沙發 1 張、床墊 2 個、衣櫃 1 組、雜物約 10 袋';
+      $('#cItems').placeholder = c ? '例如：廚房油垢比較多、有寵物毛、想順便清冷氣' : '例如：舊沙發 1 張、床墊 2 個、衣櫃 1 組、雜物約 10 袋';
+      $('#cItemsT').textContent = c ? '📸 室內照片或影片' : '要清的東西';
+      $('#cItemsL').textContent = c ? '有特別髒、特別在意的地方嗎？（選填）' : '大概有什麼、多少？（有重物、大型家具也請寫）';
+      $('#cPhotoL').textContent = c ? '拍幾張室內照片，小丞更能掌握現場，估得更準（最多 9 張）' : '拍照（可以一次選多張，最多 9 張）';
+      $('#cAddrL').textContent = c ? '寫到區域或路名就可以（例如：台中市西屯區台灣大道三段）' : '地址（縣市區路名門牌，沒有門牌寫到路名）';
+      $('#cLocT').textContent = c ? '② 清潔地址／區域' : '清運位置';
     }
+    ['cCleanIntro', 'cCleanType', 'cCleanSize', 'cVideoHint'].forEach(id => $('#' + id).classList.toggle('hide', k !== 'clean'));
+    ['cFloorBox', 'cRouteCard'].forEach(id => $('#' + id).classList.toggle('hide', k === 'clean'));
+    if (k !== 'clean') $('#cElevRow').classList.toggle('hide', $('#cFloor').value === '1 樓');
     showStep(1); window.scrollTo(0, 0);
   }
   document.addEventListener('change', e => { if (e.target.name === 'svcpick') pickSvc(e.target.value); });
   $('#cFloor').addEventListener('change', () => $('#cElevRow').classList.toggle('hide', $('#cFloor').value === '1 樓'));
 
+  [['szRoom', 9], ['szHall', 5], ['szBath', 5], ['szKit', 3], ['szBal', 5]].forEach(([id, n]) => { $('#' + id).innerHTML = '<option value="">—</option>' + Array.from({ length: n + 1 }, (_, i) => `<option>${i}</option>`).join(''); });
   let cFiles = [];
   const resizePhoto = f => new Promise(res => {
     const img = new Image(), url = URL.createObjectURL(f);
@@ -631,30 +646,75 @@
     img.onerror = () => { URL.revokeObjectURL(url); res(f); };
     img.src = url;
   });
-  const drawThumbs = () => { $('#cThumbs').innerHTML = cFiles.map((f, i) => `<div class="th"><img src="${URL.createObjectURL(f)}" alt="照片 ${i + 1}"><button type="button" data-rm="${i}" aria-label="移除這張">✕</button></div>`).join(''); };
-  $('#cPhotos').addEventListener('change', async e => {
+  const drawThumbs = () => {
+    const html = cFiles.map((f, i) => `<div class="th"><img src="${URL.createObjectURL(f)}" alt="照片 ${i + 1}"><button type="button" data-rm="${i}" aria-label="移除這張">✕</button></div>`).join('');
+    $('#cThumbs').innerHTML = html; $('#mThumbs').innerHTML = html;
+  };
+  const addPhotos = async e => {
     const add = [...e.target.files].slice(0, 9 - cFiles.length);
     for (const f of add) cFiles.push(await resizePhoto(f));
     e.target.value = ''; drawThumbs();
-  });
-  $('#cThumbs').addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (!b) return; cFiles.splice(+b.dataset.rm, 1); drawThumbs(); });
+  };
+  const rmPhoto = e => { const b = e.target.closest('[data-rm]'); if (!b) return; cFiles.splice(+b.dataset.rm, 1); drawThumbs(); };
+  $('#cPhotos').addEventListener('change', addPhotos); $('#mPhotos').addEventListener('change', addPhotos);
+  $('#cThumbs').addEventListener('click', rmPhoto); $('#mThumbs').addEventListener('click', rmPhoto);
+  // 照片先傳雲端，回傳連結；沒設定或失敗就算沒傳成功（改由客人在 LINE 傳）
+  async function uploadPhotos() {
+    let urls = [];
+    if (cFiles.length && S.photoUrl && !DEMO) {
+      const up = async f => {
+        const r = await fetch(S.photoUrl.replace(/\/$/, '') + '/photo', { method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: f });
+        if (!r.ok) throw new Error('photo ' + r.status);
+        return (await r.json()).url;
+      };
+      const res = await Promise.allSettled(cFiles.map(up));
+      urls = res.filter(x => x.status === 'fulfilled' && x.value).map(x => x.value);
+      res.filter(x => x.status === 'rejected').forEach(x => console.error(x.reason));
+    }
+    photoFail = cFiles.length - urls.length;
+    let txt = '';
+    if (urls.length) txt = '\n照片連結（' + urls.length + ' 張）：\n' + urls.join('\n') + (photoFail ? `\n（另有 ${photoFail} 張沒傳成功，客人會另外在 LINE 傳）` : '');
+    else if (cFiles.length) txt = '\n（照片客人會另外在 LINE 傳給你）';
+    return txt;
+  }
 
+  const sizeText = () => {
+    const g = id => $('#' + id).value, parts = [];
+    [['szRoom', '房'], ['szHall', '廳'], ['szBath', '衛'], ['szKit', '廚'], ['szBal', '陽台']].forEach(([id, u]) => { if (g(id) !== '') parts.push(g(id) + u); });
+    const ping = $('#szPing').value.trim();
+    return [parts.join(''), ping ? `約 ${ping} 坪` : ''].filter(Boolean).join('，');
+  };
+  const cleanType = () => (document.querySelector('input[name="ctype"]:checked') || {}).value || '';
   const clearMissing = () => {
     const miss = [];
-    if (!$('#cAddr').value.trim()) miss.push('地址');
-    if (!cFiles.length && !$('#cItems').value.trim()) miss.push(mode === 'clean' ? '要清潔的地方（照片或文字至少一個）' : '要清的東西（照片或文字至少一個）');
+    if (mode === 'clean') {
+      if (!cleanType()) miss.push('清潔類型');
+      if (!$('#cAddr').value.trim()) miss.push('清潔地址／區域');
+      if (!sizeText()) miss.push('空間大小（幾房幾廳，或大約幾坪）');
+    } else {
+      if (!$('#cAddr').value.trim()) miss.push('地址');
+      if (!cFiles.length && !$('#cItems').value.trim()) miss.push('要清的東西（照片或文字至少一個）');
+    }
     return miss.length ? '請填寫：' + miss.join('、') : '';
   };
   const floorText = () => { const f = $('#cFloor').value; return f === '1 樓' ? f : `${f}（${$('#cElev').value}）`; };
   const slotText = () => { const s = S.slots.find(x => x.id === selSlot); if (!s) return ''; return s.label + (s.pickHour && selNight !== '' ? ` ${pad2(selNight)}:00 開始` : ''); };
   function clearLines() {
-    const c = mode === 'clean';
+    if (mode === 'clean') return [
+      ['服務', '居家清潔'],
+      ['清潔類型', cleanType()],
+      ['清潔地址／區域', $('#cAddr').value.trim()],
+      ['空間大小', sizeText()],
+      ['補充', $('#cItems').value.trim() || '（無）'],
+      ['照片', cFiles.length + ' 張'],
+      ['希望日期', selDate ? `${dateText(selDate)} ${slotText()}` : '（未選）'],
+    ];
     return [
       ['服務', SVC_NAME[mode]],
-      [c ? '清潔位置' : '清運位置', $('#cAddr').value.trim()],
+      ['清運位置', $('#cAddr').value.trim()],
       ['樓層', floorText()],
       ['路線', $('#cRoute').value.trim() || '（未填）'],
-      [c ? '清潔範圍' : '物品', $('#cItems').value.trim() || '（見照片）'],
+      ['物品', $('#cItems').value.trim() || '（見照片）'],
       ['照片', cFiles.length + ' 張'],
       ['希望日期', selDate ? `${dateText(selDate)} ${slotText()}` : '（未選）'],
     ];
@@ -678,22 +738,7 @@
     if ($('#lineName').value.trim()) lines.push(`LINE 名稱：${$('#lineName').value.trim()}`);
     if ($('#note').value.trim()) lines.push(`附註：${$('#note').value.trim()}`);
     const btn = $('#nextBtn'); btn.disabled = true; btn.textContent = '送出中…';
-    // 先把照片傳到雲端，拿到連結放進通知；沒設定或失敗就退回「客人另外在 LINE 傳」
-    let photoUrls = [];
-    if (cFiles.length && S.photoUrl && !DEMO) {
-      const up = async f => {
-        const r = await fetch(S.photoUrl.replace(/\/$/, '') + '/photo', { method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: f });
-        if (!r.ok) throw new Error('photo ' + r.status);
-        return (await r.json()).url;
-      };
-      const res = await Promise.allSettled(cFiles.map(up));
-      photoUrls = res.filter(x => x.status === 'fulfilled' && x.value).map(x => x.value);
-      res.filter(x => x.status === 'rejected').forEach(x => console.error(x.reason));
-    }
-    photoFail = cFiles.length - photoUrls.length;
-    let photoTxt = '';
-    if (photoUrls.length) photoTxt = '\n照片連結（' + photoUrls.length + ' 張）：\n' + photoUrls.join('\n') + (photoFail ? `\n（另有 ${photoFail} 張沒傳成功，客人會另外在 LINE 傳）` : '');
-    else if (cFiles.length) photoTxt = '\n（照片客人會另外在 LINE 傳給你）';
+    const photoTxt = await uploadPhotos();
     const text = `【搬家專車 線上估價】${SVC_NAME[mode]}\n` + lines.join('\n') + photoTxt;
     lastClearText = text;
     const slot = S.slots.find(x => x.id === selSlot);
@@ -708,7 +753,7 @@
             name: $('#name').value.trim(), phone: $('#phone').value.trim(), lineName: $('#lineName').value.trim(),
             heard: $('#heard').value, src: params.get('src') || '', fromAddr: $('#cAddr').value.trim(), toAddr: '', note: $('#note').value.trim(),
             date: selDate, slot: selSlot, slotLabel: slotText(), hour: slotHour(), hours: 2, code: '',
-            job: { kind: mode, svc: SVC_NAME[mode], floor: floorText(), route: $('#cRoute').value.trim(), items: $('#cItems').value.trim(), photos: cFiles.length },
+            job: mode === 'clean' ? { kind: mode, svc: SVC_NAME[mode], cleanType: cleanType(), size: sizeText(), items: $('#cItems').value.trim(), photos: cFiles.length } : { kind: mode, svc: SVC_NAME[mode], floor: floorText(), route: $('#cRoute').value.trim(), items: $('#cItems').value.trim(), photos: cFiles.length },
             text, website: $('#website').value,
           }),
         });
