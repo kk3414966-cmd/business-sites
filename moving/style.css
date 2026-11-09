@@ -114,7 +114,7 @@ img{max-width:100%}
 /* 短影片：直式卡片，手機上可以左右滑 */
 .g-title{font-size:18px;font-weight:900;margin:8px 0 12px}
 .g-title + .reels{margin-bottom:28px}
-.reels{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+.reels{display:grid;grid-auto-flow:column;grid-auto-columns:200px;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
 @media(max-width:700px){.reels{grid-auto-columns:46%}}
 .reel{position:relative;display:block;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:var(--navy);scroll-snap-align:start;text-decoration:none;color:var(--white);max-width:100%}
 .reel img{width:100%;height:100%;object-fit:cover;display:block}
@@ -370,3 +370,9 @@ footer b{color:var(--white)}
 .cases{align-items:start}
 .case img{aspect-ratio:auto;height:auto;object-fit:contain;background:var(--paper)}
 .reel img,.f-main img{object-fit:contain;background:var(--navy)}
+
+/* 首頁實錄：影片橫列＋貼文卡 */
+.feature{display:block}
+.feature .reels{margin-bottom:14px}
+.f-cases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
+@media(max-width:760px){.f-cases{grid-template-columns:1fr}}

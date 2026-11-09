@@ -168,21 +168,15 @@
     $('#casesTitle').classList.toggle('hide', !cList.length);
     $('#casesAll').classList.toggle('hide', !cList.length);
 
-    // 首頁：一支主打影片＋兩個案例，簡單乾淨
-    const fv = S.videos[0], fc = S.cases.slice(0, 2);
-    $('#featureHome').innerHTML = (fv ? `
-      <${fv.url ? `a href="${esc(fv.url)}" target="_blank" rel="noopener"` : 'div'} class="f-main">
-        <img src="${esc(pic(fv.img))}" alt="" loading="lazy" style="object-position:${esc(fv.pos || 'center')}">
-        <span class="play" aria-hidden="true"></span>${demoBadge}
-        <span class="f-cap"><small>影片</small>${esc(fv.title)}</span>
-      </${fv.url ? 'a' : 'div'}>` : '') + `
-      <div class="f-side">${fc.map(c => `
+    // 首頁：影片橫列（最多 4 支）＋貼文三張＋看更多
+    const fv = S.videos.slice(0, 4), fc = S.cases.slice(0, 3);
+    $('#featureHome').innerHTML = (fv.length ? `<div class="reels">${reelsHTML(fv)}</div>` : '') +
+      (fc.length ? `<div class="f-cases">${fc.map(c => `
         <a class="f-case" href="#gallery" data-go="gallery">
           <img src="${esc(pic(c.img))}" alt="" loading="lazy" style="object-position:${esc(c.pos || 'center')}">
           <span class="f-txt"><b>${esc(caseTitle(c))}</b><small>${esc(c.post ? '' : caseTags(c).slice(0, 3).join('・'))}</small></span>
-        </a>`).join('')}
-        <a class="btn btn-n f-more" href="#gallery" data-go="gallery">看更多搬家實錄 →</a>
-      </div>`;
+        </a>`).join('')}</div>` : '') +
+      `<a class="btn btn-n f-more" href="#gallery" data-go="gallery">看更多搬家實錄 →</a>`;
 
     $('#reviewSec').classList.toggle('hide', !S.reviews.length);
     $('#reviews').innerHTML = S.reviews.map(r => `<blockquote><div class="stars" aria-label="5 顆星">★★★★★</div><p>${esc(r.text)}</p><cite>${esc(r.name)}・Google 評論</cite></blockquote>`).join('');
