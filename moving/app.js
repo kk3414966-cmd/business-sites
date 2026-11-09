@@ -57,7 +57,7 @@
   /* =========================================================
      分頁
      ========================================================= */
-  const VIEWS = ['home', 'quote', 'gallery', 'used'];
+  const VIEWS = ['home', 'quote', 'gallery', 'used', 'clear'];
   function go(v, keepScroll) {
     if (!VIEWS.includes(v)) v = 'home';
     VIEWS.forEach(x => $('#v-' + x).classList.toggle('hide', x !== v));
@@ -579,6 +579,63 @@
     try { await navigator.clipboard.writeText(t); toast('已複製，貼到 LINE 傳給小丞'); }
     catch { toast('複製失敗，請直接加 LINE 傳訊息'); }
   };
+
+  /* =========================================================
+     清運／清潔估價：資料＋照片傳到小丞 LINE（分享選單）
+     ========================================================= */
+  (function () {
+    const form = $('#clearForm'); if (!form) return;
+    let files = [];
+    const resize = f => new Promise(res => {
+      const img = new Image(), url = URL.createObjectURL(f);
+      img.onload = () => {
+        const k = Math.min(1, 1280 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+        c.toBlob(b => res(b ? new File([b], 'photo.jpg', { type: 'image/jpeg' }) : f), 'image/jpeg', 0.82);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); res(f); };
+      img.src = url;
+    });
+    const drawThumbs = () => {
+      $('#cThumbs').innerHTML = files.map((f, i) => `<div class="th"><img src="${URL.createObjectURL(f)}" alt="照片 ${i + 1}"><button type="button" data-rm="${i}" aria-label="移除這張">✕</button></div>`).join('');
+    };
+    $('#cPhotos').addEventListener('change', async e => {
+      const add = [...e.target.files].slice(0, 9 - files.length);
+      for (const f of add) files.push(await resize(f));
+      e.target.value = ''; drawThumbs();
+    });
+    $('#cThumbs').addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (!b) return; files.splice(+b.dataset.rm, 1); drawThumbs(); });
+    const buildText = () => [
+      `【清運／清潔估價】${(form.csvc.value)}`,
+      `稱呼：${$('#cName').value.trim()}${$('#cPhone').value.trim() ? '　電話：' + $('#cPhone').value.trim() : ''}`,
+      `地址：${$('#cAddr').value.trim()}`,
+      `樓層：${$('#cFloor').value}／${$('#cElev').value}`,
+      `路線：${$('#cRoute').value.trim() || '（未填）'}`,
+      `物品：${$('#cItems').value.trim() || '（見照片）'}`,
+      $('#cWhen').value.trim() ? `希望日期：${$('#cWhen').value.trim()}` : '',
+      `照片：${files.length} 張`,
+    ].filter(Boolean).join('\n');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const err = $('#cErr'); err.classList.add('hide');
+      const miss = [];
+      if (!$('#cName').value.trim()) miss.push('稱呼');
+      if (!$('#cAddr').value.trim()) miss.push('地址');
+      if (!files.length && !$('#cItems').value.trim()) miss.push('要清的東西（照片或文字至少一個）');
+      if (miss.length) { err.textContent = '請填寫：' + miss.join('、'); err.classList.remove('hide'); err.scrollIntoView({ block: 'center' }); return; }
+      const text = buildText();
+      try { await navigator.clipboard.writeText(text); } catch (x) { /* 沒權限就算了 */ }
+      const data = { text, title: '清運／清潔估價' };
+      if (files.length && navigator.canShare && navigator.canShare({ files })) data.files = files;
+      try {
+        if (navigator.share && (data.files || navigator.canShare)) { await navigator.share(data); toast('已跳出分享，選 LINE 傳給小丞'); return; }
+      } catch (x) { if (x && x.name === 'AbortError') return; }
+      // 電腦或不支援分享的瀏覽器：文字已複製，開 LINE 讓客人貼上
+      toast('文字已複製，貼到小丞的 LINE（照片請另外傳）');
+      window.open(B.lineUrl, '_blank', 'noopener');
+    });
+  })();
 
   /* ---------- 開始 ---------- */
   showStep(1);

@@ -343,3 +343,14 @@ footer b{color:var(--white)}
 .start2 .btn{width:100%}
 @media(min-width:700px){.flow{grid-template-columns:repeat(4,1fr)}.start2{grid-template-columns:1fr 1fr}}
 .hero .row .btn{flex:1 1 220px}
+
+.muted-p{color:#555;font-size:14px;margin:0 0 10px}
+.chip{display:inline-flex}.chip input{position:absolute;opacity:0;pointer-events:none}
+#cSvc .chip span{display:block;padding:12px 16px;border:2px solid var(--line);border-radius:12px;font-weight:700;background:var(--white);cursor:pointer}
+#cSvc .chip input:checked + span{border-color:var(--navy);background:#eef2fb}
+#clearForm textarea,#clearForm input,#clearForm select{width:100%;font:inherit}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.thumbs .th{position:relative;width:76px;height:76px}
+.thumbs img{width:100%;height:100%;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.thumbs button{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:#333;color:#fff;font-size:12px}
+.btn.wide{width:100%}
