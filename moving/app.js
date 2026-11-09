@@ -12,6 +12,7 @@
   // 還沒填 Cloudflare 網址之前是測試模式（假行事曆、不會真的送出）
   const DEMO = !S.bookingUrl;
   $('#demoBar').classList.toggle('hide', !DEMO);
+  if (DEMO) { $('#demoBar .in').textContent = '⚠ 測試版：預約不會真的送出，行事曆用的是假資料。'; $('#notifyPreview b').textContent = '測試版才看得到：官方帳號會傳出的訊息'; }
 
   const toast = t => { const el = $('#toast'); el.textContent = t; el.classList.remove('hide'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.add('hide'), 2200); };
 
