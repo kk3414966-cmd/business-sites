@@ -30,7 +30,7 @@ export default {
       if (!(b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF)) return json({ ok: false, error: 'notjpeg' }, 415, env);
       const key = hex(16);                                        // 128 位元隨機，無法猜
       await env.PHOTOS.put(key, buf, { httpMetadata: { contentType: 'image/jpeg' } });
-      return json({ ok: true, url: `${url.origin}/p/${key}` }, 200, env);
+      return json({ ok: true, url: url.origin + '/p/' + key }, 200, env);
     }
 
     // 看照片：GET /p/<32位十六進位>
