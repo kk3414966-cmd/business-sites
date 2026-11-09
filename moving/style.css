@@ -366,3 +366,7 @@ footer b{color:var(--white)}
 .cats{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px}
 .cat{border:1px solid var(--line);background:var(--white);border-radius:999px;padding:8px 16px;font-size:15px;font-weight:700;cursor:pointer}
 .cat.on{background:var(--navy);border-color:var(--navy);color:var(--white)}
+/* 照片完整顯示（不裁切） */
+.cases{align-items:start}
+.case img{aspect-ratio:auto;height:auto;object-fit:contain;background:var(--paper)}
+.reel img,.f-main img{object-fit:contain;background:var(--navy)}

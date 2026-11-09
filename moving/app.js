@@ -101,6 +101,7 @@
       if (!r.ok) return;
       const c = await r.json();
       for (const k of ['videos', 'cases', 'reviews', 'used']) if (Array.isArray(c[k])) S[k] = c[k];
+      if (c.catOverride) S.catOverride = c.catOverride;
       if (c.hero) S.hero = c.hero;
       fromCms = true;
       renderContent();
@@ -109,7 +110,8 @@
 
   // 貼文分類（依內容關鍵字自動判斷，優先順序由上到下）
   const CATS = [['清運', /清運|垃圾|回收|廢棄|二手/], ['清潔', /清潔/], ['倉儲', /倉庫|倉儲|存放|儲存/], ['企業', /企業|公司行號|合作廠商|辦公室/]];
-  const catOf = t => { for (const [n, re] of CATS) if (re.test(t)) return n; return '搬家'; };
+  const TAG = /#(搬家|清運|清潔|倉儲|企業)\s*/g;           // 在粉專貼文裡加上 #清運 這類標籤＝指定分類
+  const catOf = (t, id) => { const o = (S.catOverride || {})[id]; if (o) return o; const m = String(t).match(/#(搬家|清運|清潔|倉儲|企業)/); if (m) return m[1]; for (const [n, re] of CATS) if (re.test(t)) return n; return '搬家'; };
   let galCat = '全部';
 
   // 粉專同步：影片＋搬家貼文直接從粉專來（失敗就維持原本內容）
@@ -120,9 +122,10 @@
       const j = await r.json();
       if (!j.ok) return;
       const img = x => S.feedUrl + '/img/' + x.id;
+      j.videos.concat(j.cases).forEach(x => { x.cat = catOf(x.text, x.id); x.text = x.text.replace(TAG, '').trim(); });
       const head = t => String(t).split('\n')[0].replace(/^[^\u4e00-\u9fa5A-Za-z0-9【]+/, '').slice(0, 40);
-      if ((j.videos || []).length) S.videos = j.videos.map(x => ({ img: img(x), title: head(x.text), url: x.url, cat: catOf(x.text) }));
-      if ((j.cases || []).length) S.cases = j.cases.map(x => ({ img: img(x), post: x.text, url: x.url, cat: catOf(x.text) }));
+      if ((j.videos || []).length) S.videos = j.videos.map(x => ({ img: img(x), title: head(x.text), url: x.url, cat: x.cat }));
+      if ((j.cases || []).length) S.cases = j.cases.map(x => ({ img: img(x), post: x.text, url: x.url, cat: x.cat }));
       fromCms = true;
       renderContent();
     } catch (e) { /* 連不到粉專就用原本的 */ }
