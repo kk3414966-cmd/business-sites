@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Barlow+Condensed:wght@600;800&display=swap">
 <link rel="preload" as="image" href="uploads/20261103-hn2i62.jpg">
-<link rel="stylesheet" href="style.css?v=20261109c">
+<link rel="stylesheet" href="style.css?v=20261109d">
 </head>
 <body>
 
@@ -83,7 +83,7 @@
   <div class="view hide" id="v-quote">
     <div class="pad svc-pad"><div class="in qwrap">
       <div class="card">
-        <h3>要估什麼？</h3>
+        <h3>需求服務項目</h3>
         <div class="chips wide" id="svcPick">
           <label class="chip"><input type="radio" name="svcpick" value="move" checked><span>🚚 搬家</span></label>
           <label class="chip"><input type="radio" name="svcpick" value="haul"><span>🛋 家具／雜物清運</span></label>
@@ -91,9 +91,8 @@
         </div>
       </div>
     </div></div>
-    <div id="moveFlow">
     <div class="steps pad"><div class="in"><ol id="stepBar">
-      <li data-s="1"><b>1</b>搬家內容</li><li data-s="2"><b>2</b>日期時段</li><li data-s="3"><b>3</b>報價單</li><li data-s="4"><b>4</b>聯絡方式</li>
+      <li data-s="1"><b>1</b><span class="sl">搬家內容</span></li><li data-s="2"><b>2</b><span class="sl">日期時段</span></li><li data-s="3"><b>3</b><span class="sl">報價單</span></li><li data-s="4"><b>4</b><span class="sl">聯絡方式</span></li>
     </ol></div></div>
 
     <div class="pad"><div class="in qwrap">
@@ -164,10 +163,30 @@
         </div>
       </form>
 
+      <!-- 第 1 步（清運／清潔） -->
+      <form class="step hide" id="s1c" autocomplete="off" novalidate>
+        <div class="card">
+          <h3 id="cLocT">清運位置</h3>
+          <label class="f"><span>地址（縣市區路名門牌，沒有門牌寫到路名）</span><input id="cAddr" maxlength="120" placeholder="例如：台中市西屯區台灣大道三段 99 號"></label>
+          <label class="f"><span>樓層</span><select id="cFloor"><option>1 樓</option><option>2 樓</option><option>3 樓</option><option>4 樓</option><option>5 樓</option><option>6 樓</option><option>7 樓以上</option><option>地下室</option></select></label>
+          <label class="f hide" id="cElevRow"><span>這棟有電梯嗎？（沒電梯 2 樓以上才會影響價格）</span><select id="cElev"><option>有電梯</option><option>沒有電梯</option></select></label>
+        </div>
+        <div class="card">
+          <h3>路線怎麼走？</h3>
+          <label class="f"><span>車子能停哪？離門口多遠？有沒有樓梯、巷子寬不寬？</span><textarea id="cRoute" rows="3" maxlength="400" placeholder="例如：大樓有地下停車場，車可以開進去"></textarea></label>
+        </div>
+        <div class="card">
+          <h3 id="cItemsT">要清的東西</h3>
+          <label class="f"><span id="cItemsL">大概有什麼、多少？（有重物、大型家具也請寫）</span><textarea id="cItems" rows="3" maxlength="500" placeholder="例如：舊沙發 1 張、床墊 2 個、衣櫃 1 組、雜物約 10 袋"></textarea></label>
+          <label class="f"><span>拍照（可以一次選多張，最多 9 張）</span><input id="cPhotos" type="file" accept="image/*" multiple></label>
+          <div class="thumbs" id="cThumbs"></div>
+        </div>
+      </form>
+
       <!-- 第 2 步 -->
       <div class="step hide" id="s2">
         <div class="card">
-          <h3>希望哪一天搬？</h3>
+          <h3 id="dateTitle">希望哪一天搬？</h3>
           <p class="sub-title" style="margin-top:0">最近可以約的日子</p>
           <div class="quick" id="quickDates"></div>
           <p class="sub-title">或從月曆選</p>
@@ -195,11 +214,16 @@
         <article class="qcard" id="qcard"></article>
       </div>
 
+      <!-- 第 3 步（清運／清潔）：估價單預覽 -->
+      <div class="step hide" id="s3c">
+        <article class="qcard" id="qcardC"></article>
+      </div>
+
       <!-- 第 4 步 -->
       <form class="step hide" id="s4" novalidate>
         <div class="card">
-          <h3>留下聯絡方式，取得正式報價單</h3>
-          <p class="hint" style="margin:0 0 12px">剛剛的是預估報價。送出後會打開 LINE，加小丞好友，小丞確認細節後會傳<b>正式報價單</b>給你，並跟你約時間。</p>
+          <h3 id="s4Title">留下聯絡方式，取得正式報價單</h3>
+          <p class="hint" id="s4Hint" style="margin:0 0 12px">剛剛的是預估報價。送出後會打開 LINE，加小丞好友，小丞確認細節後會傳<b>正式報價單</b>給你，並跟你約時間。</p>
           <div class="g2">
             <label class="f"><span>怎麼稱呼你？ *</span><input id="name" maxlength="40" autocomplete="name" placeholder="例如：王小姐"></label>
             <label class="f"><span>電話 *</span><input id="phone" type="tel" maxlength="20" inputmode="tel" autocomplete="tel"></label>
@@ -242,51 +266,6 @@
       </div>
       <p class="warn hide" id="stepWarn"></p>
     </div>
-    </div>
-    <div id="clearFlow" class="hide">
-    <div class="pad"><div class="in qwrap">
-      <form class="step" id="clearForm" autocomplete="off" novalidate>
-        <div class="card">
-          <h3>清運、清潔估價</h3>
-          <p class="muted-p">填完按送出，會把資料和照片傳到小丞的 LINE，小丞看過後回你價格。這裡不會直接顯示價格。</p>
-          <div class="chips wide" id="cSvc">
-            <label class="chip"><input type="radio" name="csvc" value="家具／雜物清運" checked><span>家具／雜物清運</span></label>
-            <label class="chip"><input type="radio" name="csvc" value="清潔（打掃）"><span>清潔（打掃）</span></label>
-            <label class="chip"><input type="radio" name="csvc" value="清運＋清潔"><span>清運＋清潔</span></label>
-          </div>
-        </div>
-        <div class="card">
-          <h3>在哪裡？</h3>
-          <label class="f"><span>地址（縣市區路名門牌，沒有門牌寫到路名）</span><input id="cAddr" maxlength="120" placeholder="例如：台中市西屯區台灣大道三段 99 號"></label>
-          <div class="g2">
-            <label class="f"><span>樓層</span><select id="cFloor"><option>1 樓</option><option>2 樓</option><option>3 樓</option><option>4 樓</option><option>5 樓</option><option>6 樓</option><option>7 樓以上</option><option>地下室</option></select></label>
-            <label class="f"><span>有電梯嗎？</span><select id="cElev"><option>有電梯</option><option>沒有電梯</option><option>貨梯／大電梯</option></select></label>
-          </div>
-        </div>
-        <div class="card">
-          <h3>路線怎麼走？</h3>
-          <label class="f"><span>車子能停哪？離門口多遠？有沒有樓梯、巷子寬不寬？</span><textarea id="cRoute" rows="3" maxlength="400" placeholder="例如：大樓有地下停車場，車可以開進去，電梯到 5 樓"></textarea></label>
-        </div>
-        <div class="card">
-          <h3 id="cItemsT">要清的東西</h3>
-          <label class="f"><span id="cItemsL">大概有什麼、多少？（有重物、大型家具也請寫）</span><textarea id="cItems" rows="3" maxlength="500" placeholder="例如：舊沙發 1 張、床墊 2 個、衣櫃 1 組、雜物約 10 袋"></textarea></label>
-          <label class="f"><span>拍照（可以一次選多張，最多 9 張）</span><input id="cPhotos" type="file" accept="image/*" multiple></label>
-          <div class="thumbs" id="cThumbs"></div>
-        </div>
-        <div class="card">
-          <h3>怎麼聯絡你？</h3>
-          <div class="g2">
-            <label class="f"><span>稱呼</span><input id="cName" maxlength="30" placeholder="例如：王小姐"></label>
-            <label class="f"><span>電話（選填）</span><input id="cPhone" type="tel" inputmode="tel" maxlength="20"></label>
-          </div>
-          <label class="f"><span>希望哪天清（選填）</span><input id="cWhen" maxlength="60" placeholder="例如：11/20 之後都可以"></label>
-        </div>
-        <div class="hide err" id="cErr"></div>
-        <button class="btn btn-line wide" type="submit" id="cSend">📷 送出，傳到小丞 LINE</button>
-        <p class="muted-p" id="cHelp">按下後手機會跳出分享選單，選「LINE」再選小丞就好。如果沒有跳出，資料已複製，請直接貼到小丞的 LINE。</p>
-      </form>
-    </div></div>
-    </div>
   </div>
 
   <!-- ===================== 搬家實錄 ===================== -->
@@ -318,7 +297,7 @@
 <script src="../shared/quote.js"></script>
 <script src="../shared/route.js"></script>
 <script src="content.js"></script>
-<script src="app.js?v=20261109c"></script>
+<script src="app.js?v=20261109d"></script>
 <!-- Cloudflare 網站分析（計算有多少人來看，不記個人資料） -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "149467486bfe41719c719ac2ca556ad4", "spa": true}'></script>
 </body>

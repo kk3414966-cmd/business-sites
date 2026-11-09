@@ -58,19 +58,6 @@
      分頁
      ========================================================= */
   const VIEWS = ['home', 'quote', 'gallery', 'used'];
-  // 線上估價頂端：搬家（4 步驟）／清運／清潔（填資料＋照片傳 LINE）
-  function pickSvc(k) {
-    const clear = k === 'haul' || k === 'clean';
-    $('#moveFlow').classList.toggle('hide', clear); $('#clearFlow').classList.toggle('hide', !clear);
-    const r = document.querySelector(`input[name="svcpick"][value="${k}"]`); if (r) r.checked = true;
-    if (clear) { const v = k === 'clean' ? '清潔（打掃）' : '家具／雜物清運', rr = document.querySelector(`#cSvc input[value="${v}"]`); if (rr) rr.checked = true;
-      const isC = k === 'clean';
-      $('#cItemsT').textContent = isC ? '要清潔的地方' : '要清的東西';
-      $('#cItemsL').textContent = isC ? '幾房幾廳幾坪？哪些地方要打掃（廚房、浴室、陽台…）？有什麼特別髒的？' : '大概有什麼、多少？（有重物、大型家具也請寫）';
-      $('#cItems').placeholder = isC ? '例如：3 房 2 廳約 30 坪，廚房油垢多、2 間浴室' : '例如：舊沙發 1 張、床墊 2 個、衣櫃 1 組、雜物約 10 袋';
-    }
-  }
-  document.addEventListener('change', e => { if (e.target.name === 'svcpick') pickSvc(e.target.value); });
   function go(v, keepScroll) {
     if (v === 'clear') { v = 'quote'; setTimeout(() => pickSvc('haul')); }
     if (!VIEWS.includes(v)) v = 'home';
@@ -258,6 +245,8 @@
      ========================================================= */
   // 客人只選「希望時段」，實際幾點由小丞決定；價格用時段的第一個小時算（晚上 = 16:00 起）
   // 晚上時段可以選幾點開始（選多晚加多少）
+  let mode = 'move'; // move 搬家／haul 清運／clean 清潔：三種共用同一套 4 步驟
+  const jobHrs = () => mode === 'move' ? Q.jobHours(readInput(), P) : 2;
   let selDate = '', selSlot = '', selNight = '';
   const slotHour = () => {
     const s = S.slots.find(x => x.id === selSlot); if (!s) return '';
@@ -279,7 +268,7 @@
 
   // 最近 6 個可以約的日子，做成大按鈕
   function renderQuick() {
-    const hours = Q.jobHours(readInput(), P);
+    const hours = jobHrs();
     const list = [];
     for (let i = 1; list.length < 6 && i < 60; i++) {
       const d = ymd(addDays(new Date(), i));
@@ -293,7 +282,7 @@
   }
 
   function renderCal() {
-    const hours = Q.jobHours(readInput(), P);
+    const hours = jobHrs();
     const first = new Date(calStart); first.setMonth(first.getMonth() + calOffset);
     const y = first.getFullYear(), m = first.getMonth();
     $('#calTitle').textContent = `${y} 年 ${m + 1} 月`;
@@ -325,7 +314,7 @@
 
   // 時段：客人選「希望」的時段；行事曆上已有安排的時段標示出來，但還是可以選，小丞再確認
   function renderSlots() {
-    const hours = Q.jobHours(readInput(), P);
+    const hours = jobHrs();
     const day = AVAIL[selDate];
     $('#slotCard').classList.toggle('hide', !selDate);
     if (!selDate) return;
@@ -385,6 +374,7 @@
 
   let current = null;
   function refresh() {
+    if (mode !== 'move') { renderQuick(); renderCal(); renderSlots(); return; }
     renderVol();
     const input = readInput();
     $('#floorRow').classList.toggle('hide', input.carry === '1');
@@ -459,10 +449,13 @@
      ========================================================= */
   let step = 1;
   const NEXT_TEXT = { 1: '下一步：選日期', 2: '看報價單', 3: '留聯絡方式並獲取正式估價單', 4: '送出並加 LINE' };
+  const nextText = n => mode === 'move' ? NEXT_TEXT[n] : ({ 1: '下一步：選日期', 2: '看估價單', 3: '留聯絡方式', 4: '送出到小丞 LINE' })[n];
+  const sid = n => mode === 'move' ? 's' + n : (n === 1 ? 's1c' : n === 3 ? 's3c' : 's' + n);
   function showStep(n) {
     step = n;
-    ['s1', 's2', 's3', 's4', 'sDone'].forEach(id => $('#' + id).classList.add('hide'));
-    $(n === 'done' ? '#sDone' : '#s' + n).classList.remove('hide');
+    ['s1', 's1c', 's2', 's3', 's3c', 's4', 'sDone'].forEach(id => $('#' + id).classList.add('hide'));
+    $(n === 'done' ? '#sDone' : '#' + sid(n)).classList.remove('hide');
+    if (n === 3 && mode !== 'move') renderClearCard();
     $$('#stepBar li').forEach(li => {
       const s = +li.dataset.s;
       li.classList.toggle('on', s === n);
@@ -470,7 +463,7 @@
     });
     $('#qbar').classList.toggle('hide', n === 'done');
     $('#prevBtn').style.visibility = n === 1 ? 'hidden' : 'visible';
-    $('#nextBtn').textContent = NEXT_TEXT[n] || '';
+    $('#nextBtn').textContent = nextText(n) || '';
     $('#barStep').textContent = n === 'done' ? '' : `第 ${n} / 4 步`;
     $('#nextBtn').className = 'btn ' + (n === 4 ? 'btn-line' : 'btn-y');
     $('#stepWarn').classList.add('hide');
@@ -479,7 +472,10 @@
   const warnStep = t => { $('#stepWarn').textContent = t; $('#stepWarn').classList.remove('hide'); };
   $('#prevBtn').onclick = () => { if (step > 1) { showStep(step - 1); window.scrollTo(0, 0); } };
   $('#nextBtn').onclick = () => {
-    if (step === 1) { showStep(2); window.scrollTo(0, 0); return; }
+    if (step === 1) {
+      if (mode !== 'move') { const m = clearMissing(); if (m) return warnStep(m); }
+      showStep(2); window.scrollTo(0, 0); return;
+    }
     if (step === 2) {
       if (!selDate) return warnStep('請先在月曆選一天。');
       if (!selSlot) return warnStep('請選希望的時段。');
@@ -550,8 +546,9 @@
     ].join('\n');
   }
 
-  let lastBooking = null;
+  let lastBooking = null, lastClearText = '';
   async function submit() {
+    if (mode !== 'move') return clearSubmit();
     const err = $('#bError'); err.classList.add('hide');
     refresh();
     const b = buildBooking();
@@ -589,68 +586,107 @@
   $('#backFromDone').onclick = () => { showStep(4); window.scrollTo(0, 0); };
 
   $('#copyMine').onclick = async () => {
-    if (!lastBooking) return;
-    const t = customerText(lastBooking);
+    if (mode !== 'move' ? !lastClearText : !lastBooking) return;
+    const t = mode !== 'move' ? lastClearText : customerText(lastBooking);
     try { await navigator.clipboard.writeText(t); toast('已複製，貼到 LINE 傳給小丞'); }
     catch { toast('複製失敗，請直接加 LINE 傳訊息'); }
   };
 
   /* =========================================================
-     清運／清潔估價：資料＋照片傳到小丞 LINE（分享選單）
+     清運／清潔：跟搬家同一套 4 步驟（內容 → 日期時段 → 估價單 → 聯絡方式）
+     送出時用手機分享選單，把文字和照片一起傳到小丞 LINE
      ========================================================= */
-  (function () {
-    const form = $('#clearForm'); if (!form) return;
-    let files = [];
-    const resize = f => new Promise(res => {
-      const img = new Image(), url = URL.createObjectURL(f);
-      img.onload = () => {
-        const k = Math.min(1, 1280 / Math.max(img.width, img.height)), c = document.createElement('canvas');
-        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
-        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
-        c.toBlob(b => res(b ? new File([b], 'photo.jpg', { type: 'image/jpeg' }) : f), 'image/jpeg', 0.82);
-      };
-      img.onerror = () => { URL.revokeObjectURL(url); res(f); };
-      img.src = url;
-    });
-    const drawThumbs = () => {
-      $('#cThumbs').innerHTML = files.map((f, i) => `<div class="th"><img src="${URL.createObjectURL(f)}" alt="照片 ${i + 1}"><button type="button" data-rm="${i}" aria-label="移除這張">✕</button></div>`).join('');
+  const SVC_NAME = { move: '搬家', haul: '家具／雜物清運', clean: '清潔（打掃）' };
+  function pickSvc(k) {
+    mode = k; const isC = k !== 'move';
+    const r = document.querySelector(`input[name="svcpick"][value="${k}"]`); if (r) r.checked = true;
+    const labels = $$('#stepBar li .sl');
+    labels[0].textContent = k === 'move' ? '搬家內容' : k === 'clean' ? '清潔內容' : '清運內容';
+    labels[2].textContent = isC ? '估價單' : '報價單';
+    $('#dateTitle').textContent = k === 'move' ? '希望哪一天搬？' : k === 'clean' ? '希望哪一天清潔？' : '希望哪一天清運？';
+    $('#s4Title').textContent = isC ? '留下聯絡方式，傳給小丞估價' : '留下聯絡方式，取得正式報價單';
+    $('#s4Hint').innerHTML = isC ? '按「送出」後手機會跳出分享選單，選 <b>LINE</b> 再選小丞，文字和照片就一起傳過去，小丞看過後回你價格。' : '剛剛的是預估報價。送出後會打開 LINE，加小丞好友，小丞確認細節後會傳<b>正式報價單</b>給你，並跟你約時間。';
+    if (isC) {
+      const c = k === 'clean';
+      $('#cLocT').textContent = c ? '清潔位置' : '清運位置';
+      $('#cItemsT').textContent = c ? '要清潔的地方' : '要清的東西';
+      $('#cItemsL').textContent = c ? '幾房幾廳幾坪？哪些地方要打掃（廚房、浴室、陽台…）？有什麼特別髒的？' : '大概有什麼、多少？（有重物、大型家具也請寫）';
+      $('#cItems').placeholder = c ? '例如：3 房 2 廳約 30 坪，廚房油垢多、2 間浴室' : '例如：舊沙發 1 張、床墊 2 個、衣櫃 1 組、雜物約 10 袋';
+    }
+    showStep(1); window.scrollTo(0, 0);
+  }
+  document.addEventListener('change', e => { if (e.target.name === 'svcpick') pickSvc(e.target.value); });
+  $('#cFloor').addEventListener('change', () => $('#cElevRow').classList.toggle('hide', $('#cFloor').value === '1 樓'));
+
+  let cFiles = [];
+  const resizePhoto = f => new Promise(res => {
+    const img = new Image(), url = URL.createObjectURL(f);
+    img.onload = () => {
+      const k = Math.min(1, 1280 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      c.toBlob(b => res(b ? new File([b], 'photo.jpg', { type: 'image/jpeg' }) : f), 'image/jpeg', 0.82);
     };
-    $('#cPhotos').addEventListener('change', async e => {
-      const add = [...e.target.files].slice(0, 9 - files.length);
-      for (const f of add) files.push(await resize(f));
-      e.target.value = ''; drawThumbs();
-    });
-    $('#cThumbs').addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (!b) return; files.splice(+b.dataset.rm, 1); drawThumbs(); });
-    const buildText = () => [
-      `【清運／清潔估價】${(form.csvc.value)}`,
-      `稱呼：${$('#cName').value.trim()}${$('#cPhone').value.trim() ? '　電話：' + $('#cPhone').value.trim() : ''}`,
-      `地址：${$('#cAddr').value.trim()}`,
-      `樓層：${$('#cFloor').value}／${$('#cElev').value}`,
-      `路線：${$('#cRoute').value.trim() || '（未填）'}`,
-      `${document.querySelector('#cItemsT').textContent === '要清潔的地方' ? '清潔範圍' : '物品'}：${$('#cItems').value.trim() || '（見照片）'}`,
-      $('#cWhen').value.trim() ? `希望日期：${$('#cWhen').value.trim()}` : '',
-      `照片：${files.length} 張`,
-    ].filter(Boolean).join('\n');
-    form.addEventListener('submit', async e => {
-      e.preventDefault();
-      const err = $('#cErr'); err.classList.add('hide');
-      const miss = [];
-      if (!$('#cName').value.trim()) miss.push('稱呼');
-      if (!$('#cAddr').value.trim()) miss.push('地址');
-      if (!files.length && !$('#cItems').value.trim()) miss.push('要清的東西（照片或文字至少一個）');
-      if (miss.length) { err.textContent = '請填寫：' + miss.join('、'); err.classList.remove('hide'); err.scrollIntoView({ block: 'center' }); return; }
-      const text = buildText();
-      try { await navigator.clipboard.writeText(text); } catch (x) { /* 沒權限就算了 */ }
-      const data = { text, title: '清運／清潔估價' };
-      if (files.length && navigator.canShare && navigator.canShare({ files })) data.files = files;
-      try {
-        if (navigator.share && (data.files || navigator.canShare)) { await navigator.share(data); toast('已跳出分享，選 LINE 傳給小丞'); return; }
-      } catch (x) { if (x && x.name === 'AbortError') return; }
-      // 電腦或不支援分享的瀏覽器：文字已複製，開 LINE 讓客人貼上
-      toast('文字已複製，貼到小丞的 LINE（照片請另外傳）');
-      window.open(B.lineUrl, '_blank', 'noopener');
-    });
-  })();
+    img.onerror = () => { URL.revokeObjectURL(url); res(f); };
+    img.src = url;
+  });
+  const drawThumbs = () => { $('#cThumbs').innerHTML = cFiles.map((f, i) => `<div class="th"><img src="${URL.createObjectURL(f)}" alt="照片 ${i + 1}"><button type="button" data-rm="${i}" aria-label="移除這張">✕</button></div>`).join(''); };
+  $('#cPhotos').addEventListener('change', async e => {
+    const add = [...e.target.files].slice(0, 9 - cFiles.length);
+    for (const f of add) cFiles.push(await resizePhoto(f));
+    e.target.value = ''; drawThumbs();
+  });
+  $('#cThumbs').addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (!b) return; cFiles.splice(+b.dataset.rm, 1); drawThumbs(); });
+
+  const clearMissing = () => {
+    const miss = [];
+    if (!$('#cAddr').value.trim()) miss.push('地址');
+    if (!cFiles.length && !$('#cItems').value.trim()) miss.push(mode === 'clean' ? '要清潔的地方（照片或文字至少一個）' : '要清的東西（照片或文字至少一個）');
+    return miss.length ? '請填寫：' + miss.join('、') : '';
+  };
+  const floorText = () => { const f = $('#cFloor').value; return f === '1 樓' ? f : `${f}（${$('#cElev').value}）`; };
+  const slotText = () => { const s = S.slots.find(x => x.id === selSlot); if (!s) return ''; return s.label + (s.pickHour && selNight !== '' ? ` ${pad2(selNight)}:00 開始` : ''); };
+  function clearLines() {
+    const c = mode === 'clean';
+    return [
+      ['服務', SVC_NAME[mode]],
+      [c ? '清潔位置' : '清運位置', $('#cAddr').value.trim()],
+      ['樓層', floorText()],
+      ['路線', $('#cRoute').value.trim() || '（未填）'],
+      [c ? '清潔範圍' : '物品', $('#cItems').value.trim() || '（見照片）'],
+      ['照片', cFiles.length + ' 張'],
+      ['希望日期', selDate ? `${dateText(selDate)} ${slotText()}` : '（未選）'],
+    ];
+  }
+  function renderClearCard() {
+    $('#qcardC').innerHTML = `<h3 class="qc-title">${esc(SVC_NAME[mode])}估價單（待小丞回覆）</h3>
+      <div class="qc-sec"><h4>📋 你填的內容</h4><ul>${clearLines().map(([k, v]) => `<li class="dot"><b>${esc(k)}：</b>${esc(v)}</li>`).join('')}</ul></div>
+      ${cFiles.length ? `<div class="thumbs">${cFiles.map(f => `<div class="th"><img src="${URL.createObjectURL(f)}" alt=""></div>`).join('')}</div>` : ''}
+      <div class="qc-sec"><h4>💰 費用</h4><p>${mode === 'clean' ? '清潔' : '清運'}要看現場和物品才能報價，小丞看過你送出的照片與資料後，會在 LINE 回你價格。</p></div>`;
+  }
+  async function clearSubmit() {
+    const err = $('#bError'); err.classList.add('hide');
+    const problems = [];
+    if (!$('#name').value.trim()) problems.push('稱呼');
+    if (($('#phone').value.match(/\d/g) || []).length < 8) problems.push('電話');
+    const m = clearMissing(); if (m) problems.push(m.replace('請填寫：', ''));
+    if (!selDate) problems.push('日期（回第 2 步選）');
+    if (problems.length) { err.textContent = '請填寫：' + problems.join('、'); err.classList.remove('hide'); warnStep('請填寫：' + problems.join('、')); return; }
+    const lines = clearLines().map(([k, v]) => `${k}：${v}`);
+    lines.push(`稱呼：${$('#name').value.trim()}　電話：${$('#phone').value.trim()}`);
+    if ($('#lineName').value.trim()) lines.push(`LINE 名稱：${$('#lineName').value.trim()}`);
+    if ($('#note').value.trim()) lines.push(`附註：${$('#note').value.trim()}`);
+    const text = `【搬家專車 線上估價】\n` + lines.join('\n');
+    lastClearText = text;
+    try { await navigator.clipboard.writeText(text); } catch (x) { /* 沒權限就算了 */ }
+    const data = { text, title: '清運／清潔估價' };
+    if (cFiles.length && navigator.canShare && navigator.canShare({ files: cFiles })) data.files = cFiles;
+    let shared = false;
+    try { if (navigator.share) { await navigator.share(data); shared = true; } }
+    catch (x) { if (x && x.name === 'AbortError') return; }
+    if (!shared) { toast('文字已複製，貼到小丞的 LINE（照片請另外傳）'); window.open(B.lineUrl, '_blank', 'noopener'); }
+    $('#notifyPreview').classList.add('hide'); showStep('done'); window.scrollTo(0, 0);
+  }
 
   /* ---------- 開始 ---------- */
   showStep(1);

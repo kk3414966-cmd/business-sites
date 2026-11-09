@@ -90,8 +90,6 @@ window.SITE = {
 
   // 另外報價的項目
   extras: [
-    { id: 'clear', label: '家具回收、垃圾清運' },
-    { id: 'clean', label: '退租／入住清潔' },
     { id: 'assemble', label: '家具拆裝' },
     { id: 'special', label: '特殊搬運（直立鋼琴、藝術品）' },
     { id: 'storage', label: '空間／倉庫暫存' },

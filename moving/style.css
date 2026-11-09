@@ -356,3 +356,4 @@ footer b{color:var(--white)}
 .btn.wide{width:100%}
 .svc-pad{padding-bottom:0}.svc-pad .card{margin-top:12px}
 #svcPick,#cSvc{display:flex;flex-wrap:wrap;gap:8px}
+#qcardC{padding:18px 16px}#qcardC .qc-title{font-size:20px;margin:0 0 10px}#qcardC .thumbs{margin:8px 0 14px}
