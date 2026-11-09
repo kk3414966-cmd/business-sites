@@ -364,26 +364,42 @@
     $('#volBox').classList.toggle('hide', !bigItems.length);
     if (!bigItems.length) return;
     const adv = volAdvice();
+    const unknown = radio('load') === 'unknown';
+    $('#volBar').classList.toggle('hide', unknown);
+    $('#raiseMsg').classList.toggle('hide', !Q.needsRaise(bigItems, S.bigItemTypes, P));
+    const msg = $('#volMsg');
+    if (unknown) {   // 選「不確定」：不跟任何一種車比，只說大約多少，到現場再判斷
+      $('#volHead').textContent = '這些東西大約相當於';
+      $('#volPct').textContent = `${(pct / 100).toFixed(1)} 台平車`;
+      $('#volSub').textContent = '';
+      msg.className = 'vol-msg ok';
+      msg.textContent = '你選了「不確定」，我們到現場再幫你判斷。';
+      return;
+    }
     const cap = loadTrucks();
     const use = Math.round(pct / cap);            // 佔「你選的車」的百分比
-
     const lab = loadLabel(radio('load')) || '一車';
-    $('#volHead').textContent = radio('load') === 'unknown' ? '這些東西大約佔一台平車' : `這些東西大約佔你選的「${lab}」`;
+    $('#volHead').textContent = `這些東西大約佔你選的「${lab}」`;
     $('#volPct').textContent = `約 ${use}%`;
     $('#volSub').textContent = cap === 1 ? '' : pct >= 10 ? `（相當於 ${(pct / 100).toFixed(1)} 台平車的量）` : `（約一台平車的 ${Math.round(pct)}%）`;
     $('#volFill').style.width = Math.min(100, use / 1.2) + '%';
     $('#volFill').className = use > P.truck.maxPct ? 'more' : 'ok';
-    const msg = $('#volMsg');
     msg.className = 'vol-msg ' + adv.level;
     msg.textContent = adv.level === 'ok' ? `選「${lab}」放得下，紙箱雜物也要算進去喔。`
       : `東西有點多，建議選「${loadLabel(adv.suggest)}」，疊太滿容易壓壞東西。`;
-    $('#raiseMsg').classList.toggle('hide', !Q.needsRaise(bigItems, S.bigItemTypes, P));
   }
 
   // 車數：客人沒自己動過，就依大型物品自動建議；動過就尊重他的選擇
-  let loadTouched = false;
+  let loadTouched = false, lastLoad = '';
   $('#loads').addEventListener('change', () => { loadTouched = true; });
-  const setLoad = id => { const el = document.querySelector(`#loads input[value="${id}"]`); if (el) el.checked = true; };
+  const setLoad = id => { const el = document.querySelector(`#loads input[value="${id}"]`); if (el) { el.checked = true; lastLoad = id; } };
+  // 再點一次已選的車數：取消選取，回到「依物品自動建議」（第一次點自動建議的那一車＝鎖定它）
+  $('#loads').addEventListener('click', e => {
+    const inp = e.target; if (!(inp instanceof HTMLInputElement)) return;
+    if (inp.value === lastLoad && loadTouched) { inp.checked = false; loadTouched = false; lastLoad = ''; refresh(); }
+    else if (inp.value === lastLoad) { loadTouched = true; renderLoadHint(); }
+    else lastLoad = inp.value;
+  });
   function renderLoadHint() {
     const el = $('#loadHint');
     if (!bigItems.length) { el.textContent = '先選上面的大型家具、家電，我們會幫你估要幾車；也可以自己改。不確定就選「不確定」。'; return; }
@@ -392,6 +408,7 @@
     if (cur === sug || cur === 'unknown') el.textContent = `依你選的東西，我們估「${loadLabel(sug)}」比較剛好（${flat}）。紙箱、雜物也要算進去，可以自己改。`;
     else el.textContent = `你選了「${loadLabel(cur)}」；依你選的東西，我們建議「${loadLabel(sug)}」（${flat}），可以自己決定。`;
     if (pct > P.truck.maxPct * 3) el.textContent += ' 東西很多，建議傳照片讓我們看一下。';
+    if (loadTouched) el.textContent += ' 再點一次已選的車數，可以取消、回到自動建議。';
   }
 
   let current = null;
