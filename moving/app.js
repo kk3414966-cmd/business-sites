@@ -120,6 +120,11 @@
     try {
       const r = await fetch(S.feedUrl + '/feed');
       const j = await r.json();
+      // 老闆在 APP 指定的分類（public/feedcats）
+      try {
+        const u = (S.availabilityUrl || '').replace(/availability$/, 'feedcats');
+        if (u) { const d = await fetch(u, { cache: 'no-store' }).then(x => x.ok ? x.json() : {}); S.catOverride = Object.assign({}, S.catOverride, JSON.parse((d.fields && d.fields.json && d.fields.json.stringValue) || '{}')); }
+      } catch (e) { /* 沒有就用自動分類 */ }
       if (!j.ok) return;
       const img = x => S.feedUrl + '/img/' + x.id;
       j.videos.concat(j.cases).forEach(x => { x.cat = catOf(x.text, x.id); x.text = x.text.replace(TAG, '').trim(); });
