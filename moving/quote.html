@@ -160,7 +160,9 @@ async function load(){
     DB=getFirestore(initializeApp(firebaseConfig)); REF=doc(DB,'quotes',t);
     var snap=await getDoc(REF);
     if(!snap.exists()){ APP.innerHTML='<section><h1>找不到這份報價單</h1><div class="muted">請確認連結是否完整，或在 LINE 聯絡我們。</div></section>'; return; }
-    CUR=Object.assign({id:t},snap.data()); renderCust();
+    CUR=Object.assign({id:t},snap.data());
+    if(CUR.status!=='已確認'){ var vf=validFromMs(CUR); if(!isNaN(vf)&&Date.now()>vf+9*24*3600*1000){ APP.innerHTML='<section><h1>找不到這份報價單</h1><div class="muted">請確認連結是否完整，或在 LINE 聯絡我們。</div></section>'; return; } }
+    renderCust();
   }catch(e){ APP.innerHTML='<section><h1>暫時打不開</h1><div class="muted">請稍後重新整理，或在 LINE 聯絡我們。</div></section>'; }
 }
 function demoQuote(){

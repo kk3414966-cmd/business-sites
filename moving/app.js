@@ -646,6 +646,17 @@
     ].join('\n');
   }
 
+  // 同一筆預約也存一份到 Firestore，老闆 APP 會自動把它變成待開單的報價（失敗不影響預約本身）
+  function saveBookingCopy(b) {
+    try {
+      const f = v => ({ stringValue: String(v == null ? '' : v) });
+      fetch('https://firestore.googleapis.com/v1/projects/moving-app-ac208/databases/(default)/documents/bookings?key=AIzaSyBwh4mGhuZpw-TrjZnikHc6gBGv8sue2EM', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: { status: f('new'), createdAt: f(b.createdAt), name: f(b.name), date: f(b.date), json: f(JSON.stringify({ ...b, text: notifyText(b) })) } }),
+      }).catch(() => {});
+    } catch (e) { /* 忽略 */ }
+  }
+
   let lastBooking = null, lastClearText = '', photoFail = 0;
   async function submit() {
     if (mode !== 'move') return clearSubmit();
@@ -671,6 +682,7 @@
           body: JSON.stringify({ ...b, text: notifyText(b) + photoTxt, website: $('#website').value }),
         });
         if (!r.ok) throw new Error('booking ' + r.status + ' ' + (await r.text()).slice(0, 200));
+        saveBookingCopy(b);
       }
       lastBooking = b;
       $('#notifyText').textContent = notifyText(b) + photoTxt;
