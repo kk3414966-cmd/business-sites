@@ -596,20 +596,40 @@
   // 官方帳號傳給老闆的訊息（正式版由 Cloudflare 傳；demo mode shows it on screen）
   function notifyText(b) {
     const j = b.job;
-    const fl = f => f === 'elev' ? '電梯' : f + '樓';
     const carry = S.carry.find(c => c.id === j.carry);
     const add = [j.boxes && '環保箱', j.pack && '打包', j.restore && '歸位'].filter(Boolean).join('、');
     const ext = j.extras.map(id => S.extras.find(x => x.id === id).label).join('、');
+    // 樓層／電梯一律寫清楚：有電梯、N 樓・無電梯、1 樓
+    const flr = f => f === 'elev' ? '有電梯（樓層沒填）' : f === '1' ? '1 樓' : `${f} 樓・無電梯`;
+    const place = (city, dist, addr, f) => `${city}${dist}${addr ? ' ' + addr : ''}｜${j.carry === '1' ? '客人自己上下貨，樓層沒問' : flr(f)}`;
+    const price = b.quote.low === b.quote.high ? money(b.quote.low) : money(b.quote.low) + '～' + money(b.quote.high);
     return [
       '【官網新預約】',
-      `${b.name}　${b.phone}${b.lineName ? '　LINE：' + b.lineName : ''}`,
-      `日期：${dateText(b.date)} 希望${b.slotLabel}，約 ${b.hours} 小時`,
-      `路線：${j.fromCity}${j.fromDist}${b.fromAddr ? ' ' + b.fromAddr : ''}${j.carry === '1' ? '' : `（${fl(j.fromFloor)}）`} → ${j.toCity}${j.toDist}${b.toAddr ? ' ' + b.toAddr : ''}${j.carry === '1' ? '' : `（${fl(j.toFloor)}）`}，約 ${j.km} 公里`,
+      '',
+      '▍客人',
+      `稱呼：${b.name}`,
+      `電話：${b.phone}`,
+      b.lineName ? `LINE：${b.lineName}` : null,
+      '',
+      '▍時間',
+      `日期：${dateText(b.date)} ${b.slotLabel}`,
+      `預估：約 ${b.hours} 小時`,
+      '',
+      '▍地點',
+      `舊家：${place(j.fromCity, j.fromDist, b.fromAddr, j.fromFloor)}`,
+      `新家：${place(j.toCity, j.toDist, b.toAddr, j.toFloor)}`,
+      `距離：約 ${j.km} 公里`,
+      '',
+      '▍搬運內容',
       `東西：${j.loadLabel}｜${carry ? carry.label : ''}`,
       bigItems.length ? `大型物品：${bigText().join('、')}` : null,
       add ? `加購：${add}` : null,
       ext ? `另外報價：${ext}` : null,
-      `估價（內部精準）：${b.quote.low === b.quote.high ? money(b.quote.low) : money(b.quote.low) + '～' + money(b.quote.high)}｜客人看到：${b.quote.shown}`,
+      '',
+      '▍估價',
+      `估價（內部精準）：${price}｜客人看到：${b.quote.shown}`,
+      '',
+      '▍其他',
       `來源：${b.heard || '沒填'}${b.src ? `（網址 ${b.src}）` : ''}`,
       b.note ? `附註：${b.note}` : null,
     ].filter(x => x != null).join('\n');

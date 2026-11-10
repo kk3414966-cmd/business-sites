@@ -71,11 +71,18 @@ var NOTICE = [
 ];
 
 /* ---------- Customer side ---------- */
+var VALID_MS=3*24*3600*1000;
+var EXTRAS=['物品超過車頭高度：+$500 起','上下貨距離超過 30 步：+$500','需要轉乘電梯／特殊搬運：+$500'];
+var EXTRAS_NOTE='實際是否需要加價，會依現場狀況與物品數量確認，不會無故增加費用。';
+function validFromMs(q){ var t=Date.parse(q.validFrom||q.createdAt||''); if(!isNaN(t)) return t; var m=String(q.no||'').match(/^Q-(\d{4})(\d{2})(\d{2})-/); return m?new Date(+m[1],+m[2]-1,+m[3]).getTime():NaN; }
+function isExpired(q){ if(q.status==='作廢') return true; if(q.status!=='未確認') return false; var t=validFromMs(q); return !isNaN(t)&&Date.now()>t+VALID_MS; }
+function validUntilText(q){ var t=validFromMs(q); if(isNaN(t)) return ''; var d=new Date(t+VALID_MS); return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+function footHtml(q){ var u=q.status==='未確認'?validUntilText(q):''; return '<div class="muted" style="text-align:center;padding:4px 16px 24px">報價單時效 3 天，超過將重新報價。'+(u?'<br>本張有效至 '+esc(u)+'。':'')+'</div>'; }
 var checked=false, sigDrawn=false;
 function renderCust(){
  var q=CUR;
  if(!q){ APP.innerHTML='<section><h2>客人畫面</h2><div class="muted">請先在「老闆 APP」開一張報價單，再按清單裡的「模擬客人打開」。</div><button class="btn" id="goA">回老闆 APP</button></section>'; $('goA').onclick=function(){setView('app')}; return; }
- if(q.status==='作廢'){ APP.innerHTML='<section><h1>此報價單已作廢</h1><div class="muted">如有疑問，請在 LINE 聯絡我們。</div></section>'; return; }
+ if(isExpired(q)){ APP.innerHTML='<section><h1>此報價單已過期</h1><div class="muted">報價單時效為 3 天，超過會重新報價。請在 LINE 聯絡我們，我們再幫您重新報價。</div></section>'; return; }
  var done=q.status==='已確認', need=q.total>CURLIM;
  var h='<section style="background:#1F3A5F;color:#fff;margin:0;border-radius:0"><div style="display:flex;align-items:center;gap:10px"><img src="images/logo.png" alt="搬家專車 LOGO" width="44" height="44" style="border-radius:8px;background:#fff"><div style="color:#F2B705;font-size:16px;font-weight:700">搬家專車</div></div><h1 style="color:#fff">正式報價單</h1><div style="font-size:13px;opacity:.85">'+(q.no?'單號 '+esc(q.no):'')+(DEMO?'（範例資料）':'')+'</div></section>';
  h+='<section><h2>搬家資料</h2><div class="box"><b>'+esc(q.name)+'</b><br>'+esc(q.date)+'<br>舊址：'+esc(q.from)+'<br>新址：'+esc(q.to)+'</div></section>';
@@ -85,6 +92,7 @@ function renderCust(){
  h+='<section style="border:2px solid #F2B705">'+(q.disc?'<div class="sp"><span class="muted">小計</span><span>'+fm(q.sub)+'</span></div><div class="sp"><span class="muted">優惠折扣</span><span style="color:#B45309">－'+fm(q.disc)+'</span></div>':'')
  +'<div class="sp"><span class="muted">總價</span><span class="big">'+fm(q.total)+'</span></div><div style="height:1px;background:#E2E8F0"></div>'
  +'<div class="sp"><span class="muted">訂金（總金額的 10%）</span><b>'+fm(q.dep)+'</b></div><div class="sp"><span class="muted">付款方式</span><span>現金或轉帳</span></div><div class="muted">尾款完工後付清。</div></section>';
+ h+='<section><h2>📌 可能產生的額外費用</h2><div class="box">'+EXTRAS.map(function(t){return '・'+esc(t)}).join('<br>')+'</div><div class="muted">'+esc(EXTRAS_NOTE)+'</div></section>';
  if(q.note) h+='<section><h2>老闆給您的備註</h2><div class="box">'+esc(q.note)+'</div></section>';
  if(done){
   h+='<section><h1 style="color:#166534">✓ 已確認</h1><div class="muted">'+esc(fmtAt(q.confirmedAt))+(q.sig?' ・已簽名':'')+'<br>我們已收到您的確認，謝謝！</div>'
@@ -95,7 +103,7 @@ function renderCust(){
   h+='<section style="border:2px solid #1F3A5F"><h2>付款資訊</h2><div class="muted">請先轉帳訂金，我們收到後會跟您聯絡確認。</div><div class="sp"><span class="muted">訂金（總金額的 10%）</span><span class="big" style="font-size:26px">'+fm(q.dep)+'</span></div>'
   +(pp.acct?'<div class="box"><b>'+esc(pp.bank)+'</b><br>帳號：<b id="acctTxt">'+esc(pp.acct)+'</b><br>戶名：'+esc(pp.holder)+'</div><button class="btn sm sec" id="copyAcct">複製帳號</button><div class="muted" id="amsg"></div><div class="box" style="margin-top:8px"><b>匯款後</b>，再麻煩您<b>截圖傳 LINE 告訴我們一聲</b>，我們收到後會跟您確認，謝謝！</div>':'<div class="box hint">老闆還沒設定收款帳號（請先在老闆 APP 清單最上面填）。</div>')
   +'<div class="muted">尾款在完工後付清，現金或轉帳都可以。</div></section>';
-  APP.innerHTML=h; $('copy').onclick=function(){copyQuote(q)}; if($('prt')) $('prt').onclick=function(){ try{window.print()}catch(e){} };
+  h+=footHtml(q); APP.innerHTML=h; $('copy').onclick=function(){copyQuote(q)}; if($('prt')) $('prt').onclick=function(){ try{window.print()}catch(e){} };
   if($('copyAcct')) $('copyAcct').onclick=function(){ var m=$('amsg'); try{ navigator.clipboard.writeText(pp.acct).then(function(){m.textContent='已複製帳號'},function(){m.textContent='這裡無法複製，請手動選取。'}); }catch(e){ m.textContent='這裡無法複製，請手動選取。'; } };
   return;
  }
@@ -104,7 +112,7 @@ function renderCust(){
  if(need) h+='<section style="'+(checked?'':'opacity:.45')+'"><h2>手寫簽名（總價超過 NT$15,000 需要，先勾選同意才能簽）</h2><canvas id="sig"></canvas><div class="row"><button class="btn sm sec" id="clr">清除重簽</button></div></section>';
  h+='<section><label for="cn">您的備註（選填）</label><textarea id="cn" placeholder="想跟我們說的話"></textarea><button class="btn noprint" id="ok">'+(need?'簽名並確認這份報價':'確認這份報價')+'</button><div class="hint" id="err"></div>'
  +'<button class="btn sec noprint" id="prt">下載留底（存成 PDF）</button><button class="btn sec noprint" id="copy">複製報價單文字</button><div class="muted" id="cmsg"></div></section>';
- APP.innerHTML=h;
+ h+=footHtml(q); APP.innerHTML=h;
  function sync(){ var b=$('ok'); b.disabled=!checked; }
  sync();
  $('agree').onchange=function(){checked=this.checked; var cn=$('cn').value; renderCust(); $('cn').value=cn};
@@ -112,6 +120,7 @@ function renderCust(){
  if(need){ initSig(); $('clr').onclick=function(){ clearSig(); }; }
  $('ok').onclick=function(){
   if(!checked){ return; }
+  if(isExpired(q)){ renderCust(); window.scrollTo(0,0); return; }
   if(need&&!sigDrawn){ $('err').textContent='請先在上方簽名'; return; }
   var btn=$('ok'); btn.disabled=true; btn.textContent='送出中…';
   var patch={custNote:$('cn').value,status:'已確認',confirmedAt:new Date().toISOString()};
@@ -132,7 +141,7 @@ function initSig(){
 function clearSig(){ var c=$('sig'); ctx.clearRect(0,0,c.width,c.height); sigDrawn=false; }
 function copyQuote(q){
  var t='【正式報價單】'+q.id+'\n客人：'+q.name+'\n日期：'+q.date+'\n舊址：'+q.from+'\n新址：'+q.to+'\n\n服務項目：\n'
- +q.items.map(function(i){return '・'+i.name+'　'+fm(i.amt)}).join('\n')+'\n'+(q.disc?'優惠折扣：－'+fm(q.disc)+'\n':'')+'\n總價：'+fm(q.total)+'\n訂金：'+fm(q.dep)+'\n付款：現金或轉帳，尾款完工後付清\n\n注意事項：\n'+NOTICE.map(function(x,i){return (i+1)+'. '+x}).join('\n')+'\n\n狀態：'+q.status;
+ +q.items.map(function(i){return '・'+i.name+'　'+fm(i.amt)}).join('\n')+'\n'+(q.disc?'優惠折扣：－'+fm(q.disc)+'\n':'')+'\n總價：'+fm(q.total)+'\n訂金：'+fm(q.dep)+'\n付款：現金或轉帳，尾款完工後付清\n\n可能產生的額外費用：\n'+EXTRAS.map(function(t){return '・'+t}).join('\n')+'\n'+EXTRAS_NOTE+'\n\n注意事項：\n'+NOTICE.map(function(x,i){return (i+1)+'. '+x}).join('\n')+'\n\n報價單時效 3 天，超過將重新報價。\n\n狀態：'+q.status;
  var m=$('cmsg');
  try{ navigator.clipboard.writeText(t).then(function(){m.textContent='已複製，可貼到記事本或 LINE 留底。'},function(){m.textContent='這裡無法複製，請改用上面的「下載留底」。'}); }catch(e){ m.textContent='這裡無法複製，請改用上面的「下載留底」。'; }
 }
