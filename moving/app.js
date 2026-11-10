@@ -9,10 +9,10 @@
   const pad2 = Q.pad2;
   const params = new URLSearchParams(location.search);
 
-  // 還沒填 Cloudflare 網址之前是測試模式（假行事曆、不會真的送出）
+  // demo mode when no booking URL is set
   const DEMO = !S.bookingUrl;
   $('#demoBar').classList.toggle('hide', !DEMO);
-  if (DEMO) { $('#demoBar .in').textContent = '⚠ 測試版：預約不會真的送出，行事曆用的是假資料。'; $('#notifyPreview b').textContent = '測試版才看得到：官方帳號會傳出的訊息'; }
+  if (DEMO) { $('#demoBar .in').textContent = 'DEMO'; $('#notifyPreview b').textContent = 'DEMO'; }
 
   const toast = t => { const el = $('#toast'); el.textContent = t; el.classList.remove('hide'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.add('hide'), 2200); };
 
@@ -29,7 +29,7 @@
 
   /* ---------- 哪幾天、哪些時間已經有安排 ----------
      正式版：App 會把「只有時間、沒有內容」的資料寫到 Firebase，官網讀它。
-     測試版：用假資料。 */
+     demo mode uses sample data. */
   let AVAIL = {};
   async function loadAvail() {
     try {
@@ -593,7 +593,7 @@
     };
   }
 
-  // 官方帳號傳給老闆的訊息（正式版由 Cloudflare 傳；測試版顯示在畫面上）
+  // 官方帳號傳給老闆的訊息（正式版由 Cloudflare 傳；demo mode shows it on screen）
   function notifyText(b) {
     const j = b.job;
     const fl = f => f === 'elev' ? '電梯' : f + '樓';
@@ -644,7 +644,7 @@
     const btn = $('#nextBtn'); btn.disabled = true; btn.textContent = '送出中…';
     try {
       const photoTxt = await uploadPhotos();
-      if (DEMO) { await new Promise(r => setTimeout(r, 400)); console.log('測試版，沒有真的送出：', b); }
+      if (DEMO) { await new Promise(r => setTimeout(r, 400)); console.log('demo, not sent:', b); }
       else {
         const r = await fetch(S.bookingUrl.replace(/\/$/, '') + '/booking', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -816,7 +816,7 @@
     const slot = S.slots.find(x => x.id === selSlot);
     let sent = false;
     try {
-      if (DEMO) { await new Promise(r => setTimeout(r, 400)); console.log('測試版，沒有真的送出：', text); sent = true; }
+      if (DEMO) { await new Promise(r => setTimeout(r, 400)); console.log('demo, not sent:', text); sent = true; }
       else {
         const r = await fetch(S.bookingUrl.replace(/\/$/, '') + '/booking', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },

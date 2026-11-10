@@ -6,7 +6,7 @@
 window.SITE = {
   business: 'moving',
 
-  // 預約送到哪裡（Cloudflare Worker）。空白 = 測試模式，不會真的送出
+  // 預約送到哪裡（Cloudflare Worker）。empty = demo mode, nothing is sent
   bookingUrl: 'https://moving-booking.kk3414966.workers.dev',
   photoUrl: 'https://moving-photos.kk3414966.workers.dev',
   feedUrl: 'https://moving-fbfeed.kk3414966.workers.dev',   // 粉專同步 Worker（影片、搬家貼文）   // 照片上傳 Worker（客人照片存 R2，30 天後自動刪除）；留空＝照片改由客人自己在 LINE 傳
@@ -146,7 +146,7 @@ window.SITE = {
     { img: 'images/me.jpg', pos: 'center 20%', from: '霧峰', to: '大里', month: '2026.08', type: '一房一廳', floors: '電梯 → 電梯', trucks: '一車', hours: '2.5 小時', text: '環保箱前一天送到，打包輕鬆很多。' },
   ],
 
-  // Google 評論（你自己挑、貼上）。測試版先放傳單上的評論。
+  // Google 評論（你自己挑、貼上）。
   reviews: [
     { name: '怡萱', text: '整個過程動作超快、又細心，辛苦老闆跟媽媽假日還來幫忙搬家，包裝不管自己或身邊朋友有需求，絕對強力推薦。' },
     { name: 'I Chen Cho', text: '效率極好，價格透明且經濟實惠，大推。' },
